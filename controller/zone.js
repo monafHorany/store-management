@@ -1,0 +1,94 @@
+const asyncHandler = require("express-async-handler");
+const Zone = require("../models/zone");
+
+const fetchAllZones = asyncHandler(async (req, res, next) => {
+  let existingZones;
+  try {
+    existingZones = await Zone.findAll();
+  } catch (err) {
+    res.status(500);
+    throw new Error(err);
+  }
+  if (existingZones.length === 0) {
+    return;
+  }
+  return res.status(200).json(existingZones);
+});
+
+const createNewZone = asyncHandler(async (req, res, next) => {
+  const { zone_symbol, zone_capacity } = req.body;
+  let existingZone;
+  try {
+    existingZone = await Zone.findOne({
+      where: { zone_symbol: zone_symbol },
+    });
+  } catch (err) {
+    res.status(500);
+    throw new Error("creating Zone failed, please try again later.");
+  }
+
+  if (existingZone) {
+    res.status(422);
+    throw new Error("Zone exists already");
+  }
+  let createdZone;
+  try {
+    createdZone = await Zone.create({
+        zone_symbol,
+        zone_capacity,
+    });
+  } catch (err) {
+    res.status(500);
+    throw new Error("creating Zone failed, please try again later.");
+  }
+  return res.status(201).json(createdZone);
+});
+
+const updateZone = asyncHandler(async (req, res, next) => {
+  const ZoneId = req.params.id;
+  let existedZone;
+  try {
+    existedZone = await Zone.findByPk(ZoneId);
+    if (!existedZone) {
+      res.status(404);
+      throw new Error("no Zone with the given id");
+    }
+  } catch (error) {
+    res.status(500);
+    throw new Error(error);
+  }
+  const { zone_symbol, zone_capacity } = req.body;
+
+  let updatedZone;
+  try {
+    updatedZone = await existedZone.update({
+        zone_symbol: zone_symbol || existedZone.zone_symbol,
+        zone_capacity: zone_capacity || existedZone.zone_capacity,
+    });
+  } catch (err) {
+    res.status(500);
+    throw new Error(err);
+  }
+  return res.status(202).json(updatedZone);
+});
+
+const deleteZone = asyncHandler(async (req, res, next) => {
+  const ZoneId = req.params.id;
+  try {
+    await Zone.destroy({
+      where: {
+        id: ZoneId,
+      },
+    });
+  } catch (error) {
+    res.status(500);
+    throw new Error(error);
+  }
+
+  return res.status(201).json({ message: "Zone deleted successfully" });
+});
+
+exports.fetchAllZones = fetchAllZones;
+exports.createNewZone = createNewZone;
+exports.updateZone = updateZone;
+exports.deleteZone = deleteZone;
