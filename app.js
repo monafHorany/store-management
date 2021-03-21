@@ -1,6 +1,7 @@
 const express = require("express");
 const sequelize = require("./utils/databaseConnection");
 const app = express();
+const path = require("path")
 const cors = require("cors");
 app.use(cors());
 
@@ -13,7 +14,7 @@ const user = require("./models/users");
 
 stand.hasMany(product, { onDelete: "cascade", onUpdate: "cascade" });
 zone.hasMany(stand, { onDelete: "cascade", onUpdate: "cascade" });
-
+app.use("/uploads/images", express.static(path.join("uploads", "images")));
 app.use("/stand", require("./routes/stand-route"));
 app.use("/zone", require("./routes/zone-route"));
 app.use("/product", require("./routes/product-route"));

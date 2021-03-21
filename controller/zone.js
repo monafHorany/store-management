@@ -1,4 +1,6 @@
 const asyncHandler = require("express-async-handler");
+const Product = require("../models/products");
+const Stand = require("../models/stands");
 const Zone = require("../models/zone");
 
 const fetchAllZones = asyncHandler(async (req, res, next) => {
@@ -10,23 +12,23 @@ const fetchAllZones = asyncHandler(async (req, res, next) => {
     throw new Error(err);
   }
   if (existingZones.length === 0) {
-    return res.status(404).json('no zones found');
+    return res.status(404).json("no zones found");
   }
   return res.status(200).json(existingZones);
 });
 
-
 const fetchSingleZone = asyncHandler(async (req, res, next) => {
-
   let existingZone;
   try {
-    existingZone = await Zone.findByPk(req.params.id, {include: { all: true }});
+    existingZone = await Zone.findByPk(req.params.id, {
+      include: { model: Stand, include: { model: Product } },
+    });
   } catch (err) {
     res.status(500);
     throw new Error(err);
   }
   if (!existingZone) {
-    return res.status(404).json('no zone found with given id');
+    return res.status(404).json("no zone found with given id");
   }
   return res.status(200).json(existingZone);
 });
@@ -50,8 +52,8 @@ const createNewZone = asyncHandler(async (req, res, next) => {
   let createdZone;
   try {
     createdZone = await Zone.create({
-        zone_symbol,
-        zone_capacity,
+      zone_symbol,
+      zone_capacity,
     });
   } catch (err) {
     res.status(500);
@@ -78,8 +80,8 @@ const updateZone = asyncHandler(async (req, res, next) => {
   let updatedZone;
   try {
     updatedZone = await existedZone.update({
-        zone_symbol: zone_symbol || existedZone.zone_symbol,
-        zone_capacity: zone_capacity || existedZone.zone_capacity,
+      zone_symbol: zone_symbol || existedZone.zone_symbol,
+      zone_capacity: zone_capacity || existedZone.zone_capacity,
     });
   } catch (err) {
     res.status(500);

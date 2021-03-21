@@ -16,14 +16,20 @@ const fetchAllProducts = asyncHandler(async (req, res, next) => {
 });
 
 const createNewProduct = asyncHandler(async (req, res, next) => {
+  console.log(req);
   const {
-    product_ar_name,
-    product_en_name,
-    product_en_desc,
-    product_ar_desc,
-    product_barcode,
-    product_sku,
-  } = req.body;
+    body: {
+      product_ar_name,
+      product_en_name,
+      product_en_desc,
+      product_ar_desc,
+      product_barcode,
+      product_sku,
+      standId
+    },
+    file,
+  } = req;
+
   let existingProducts;
   try {
     existingProducts = await Product.findOne({
@@ -31,27 +37,30 @@ const createNewProduct = asyncHandler(async (req, res, next) => {
     });
   } catch (err) {
     res.status(500);
-    throw new Error("creating product failed, please try again later.");
+    throw new Error(err);
   }
 
   if (existingProducts) {
-    res.status(422);
-    throw new Error("Product exists already, please login instead.");
+    res.status(422).json({message: "Product exists already, please login instead."})
   }
   let createdProduct;
   try {
     createdProduct = await Product.create({
       product_ar_name,
       product_en_name,
-      product_en_desc,
       product_ar_desc,
+      product_en_desc,
+      image_url: file.path,
       product_barcode,
-      SKU_code,
+      product_sku,
+      standId
     });
   } catch (err) {
     res.status(500);
-    throw new Error("creating product failed, please try again later.");
+    throw new Error(err);
   }
+
+  return res.status(201).json(createdProduct)
 });
 
 const updateProduct = asyncHandler(async (req, res, next) => {
