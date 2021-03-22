@@ -6,7 +6,7 @@ const Zone = require("../models/zone");
 const fetchAllZones = asyncHandler(async (req, res, next) => {
   let existingZones;
   try {
-    existingZones = await Zone.findAll();
+    existingZones = await Zone.findAll({include: { model: Stand}});
   } catch (err) {
     res.status(500);
     throw new Error(err);
@@ -24,8 +24,7 @@ const fetchSingleZone = asyncHandler(async (req, res, next) => {
       include: { model: Stand, include: { model: Product } },
     });
   } catch (err) {
-    res.status(500);
-    throw new Error(err);
+    return res.status(500).json(err.parent.sqlMessage);
   }
   if (!existingZone) {
     return res.status(404).json("no zone found with given id");

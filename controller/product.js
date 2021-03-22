@@ -6,8 +6,7 @@ const fetchAllProducts = asyncHandler(async (req, res, next) => {
   try {
     existingProducts = await Product.findAll();
   } catch (err) {
-    res.status(500);
-    throw new Error(err);
+     return res.status(500).json(err);
   }
   if (existingProducts.length == 0) {
     return;

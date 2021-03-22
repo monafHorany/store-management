@@ -11,13 +11,11 @@ const Product = sequelize.define("product", {
   product_ar_name: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
   },
 
   product_en_name: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
   },
   product_ar_desc: {
     type: DataTypes.STRING(500),
@@ -35,7 +33,7 @@ const Product = sequelize.define("product", {
   },
   quantity: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
   },
   product_barcode: {
     type: DataTypes.STRING(500),
@@ -43,6 +41,11 @@ const Product = sequelize.define("product", {
     unique: true,
   },
   product_sku: {
+    type: DataTypes.STRING(500),
+    allowNull: false,
+    unique: true,
+  },
+  model_number: {
     type: DataTypes.STRING(500),
     allowNull: false,
     unique: true,
