@@ -33,13 +33,17 @@ const Product = sequelize.define("product", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  quantity: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
   product_barcode: {
     type: DataTypes.STRING(500),
     allowNull: false,
     unique: true,
   },
   product_sku: {
-    type: DataTypes.DOUBLE,
+    type: DataTypes.STRING(500),
     allowNull: false,
     unique: true,
   },
