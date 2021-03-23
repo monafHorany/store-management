@@ -6,7 +6,7 @@ const fetchAllProducts = asyncHandler(async (req, res, next) => {
   try {
     existingProducts = await Product.findAll();
   } catch (err) {
-     return res.status(500).json(err);
+    return res.status(500).json(err);
   }
   if (existingProducts.length == 0) {
     return;
@@ -24,7 +24,10 @@ const createNewProduct = asyncHandler(async (req, res, next) => {
       product_ar_desc,
       product_barcode,
       product_sku,
-      standId
+
+      quantity,
+      model_number,
+      standId,
     },
     file,
   } = req;
@@ -40,7 +43,9 @@ const createNewProduct = asyncHandler(async (req, res, next) => {
   }
 
   if (existingProducts) {
-    res.status(422).json({message: "Product exists already, please login instead."})
+    res
+      .status(422)
+      .json({ message: "Product exists already, please login instead." });
   }
   let createdProduct;
   try {
@@ -51,15 +56,17 @@ const createNewProduct = asyncHandler(async (req, res, next) => {
       product_en_desc,
       image_url: file.path,
       product_barcode,
+      quantity,
       product_sku,
-      standId
+      model_number,
+      standId,
     });
   } catch (err) {
     res.status(500);
     throw new Error(err);
   }
 
-  return res.status(201).json(createdProduct)
+  return res.status(201).json(createdProduct);
 });
 
 const updateProduct = asyncHandler(async (req, res, next) => {

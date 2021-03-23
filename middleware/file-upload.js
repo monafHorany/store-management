@@ -5,6 +5,7 @@ const MIME_TYPE_MAP = {
   'image/png': 'png',
   'image/jpeg': 'jpeg',
   'image/jpg': 'jpg',
+  'image/webp': 'webp',
   'video/mp4': 'mp4'
 };
 
@@ -14,7 +15,7 @@ const fileUpload = multer({
       
     destination: (req, file, cb) => {
       console.log(file)
-      if(file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/jpg'){
+      if(file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/webp'){
         cb(null, 'uploads/images');
       }else{
         cb(null, 'uploads/videos');
