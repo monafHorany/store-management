@@ -20,12 +20,10 @@ const Product = sequelize.define("product", {
   product_ar_desc: {
     type: DataTypes.STRING(500),
     allowNull: false,
-    unique: true,
   },
   product_en_desc: {
     type: DataTypes.STRING(500),
     allowNull: false,
-    unique: true,
   },
   image_url: {
     type: DataTypes.STRING,

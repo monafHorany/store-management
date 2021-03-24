@@ -6,7 +6,9 @@ const Zone = require("../models/zone");
 const fetchAllZones = asyncHandler(async (req, res, next) => {
   let existingZones;
   try {
-    existingZones = await Zone.findAll({include: { model: Stand}});
+    existingZones = await Zone.findAll({
+      include: { model: Stand, include: Product },
+    });
   } catch (err) {
     res.status(500);
     throw new Error(err);
