@@ -1,4 +1,5 @@
 const asyncHandler = require("express-async-handler");
+const fs = require("fs");
 const Product = require("../models/products");
 
 const fetchAllProducts = asyncHandler(async (req, res, next) => {
@@ -83,17 +84,22 @@ const updateProduct = asyncHandler(async (req, res, next) => {
     throw new Error(error);
   }
   const {
-    product_ar_name,
-    product_en_name,
-    product_en_desc,
-    product_ar_desc,
-    product_barcode,
-    product_sku,
-  } = req.body;
+    body: {
+      product_ar_name,
+      product_en_name,
+      product_en_desc,
+      product_ar_desc,
+      product_barcode,
+      product_sku,
+
+      quantity,
+      model_number,
+      standId,
+    },
+    file,
+  } = req;
   let updatedProduct;
   try {
-    if (existiedProduct) {
-    }
     updatedProduct = await existiedProduct.update({
       product_ar_name: product_ar_name || existiedProduct.product_ar_name,
       product_en_name: product_en_name || existiedProduct.product_en_name,
@@ -101,7 +107,12 @@ const updateProduct = asyncHandler(async (req, res, next) => {
       product_ar_desc: product_ar_desc || existiedProduct.product_ar_desc,
       product_barcode: product_barcode || existiedProduct.product_barcode,
       product_sku: product_sku || existiedProduct.product_sku,
+      image_url: file.path || existiedProduct.image_url,
+      quantity: quantity || existiedProduct.quantity,
+      model_number: model_number || existiedProduct.model_number,
+      standId: standId || existiedProduct.standId,
     });
+    fs.unlink(existiedProduct.image_url);
     return res.status(202).json(updatedProduct);
   } catch (err) {
     res.status(500);
@@ -111,12 +122,18 @@ const updateProduct = asyncHandler(async (req, res, next) => {
 
 const deleteproduct = asyncHandler(async (req, res, next) => {
   const productId = req.params.id;
+  let existiedProduct;
   try {
-    await Product.destroy({
-      where: {
-        id: productId,
-      },
-    });
+    existiedProduct = await Product.findByPk(productId);
+    await existiedProduct.destroy();
+    console.log(existiedProduct);
+    if (existiedProduct) {
+      fs.unlink(existiedProduct.image_url, (err) => {
+        if (err) {
+          throw err;
+        }
+      });
+    }
   } catch (error) {
     res.status(500);
     throw new Error(error);
