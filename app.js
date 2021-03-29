@@ -1,9 +1,13 @@
+const dotenv = require("dotenv");
+dotenv.config();
 const express = require("express");
-const sequelize = require("./utils/databaseConnection");
 const app = express();
-const path = require("path")
+const path = require("path");
 const cors = require("cors");
 app.use(cors());
+const sequelize = require("./utils/databaseConnection");
+
+console.log(process.env.DB_HOST);
 
 app.use(express.json());
 
@@ -18,6 +22,6 @@ app.use("/uploads/images", express.static(path.join("uploads", "images")));
 app.use("/stand", require("./routes/stand-route"));
 app.use("/zone", require("./routes/zone-route"));
 app.use("/product", require("./routes/product-route"));
-// app.use("/user", require("./routes/user-route"));
+app.use("/user", require("./routes/user-route"));
 
 sequelize.sync().then(app.listen(5000));
