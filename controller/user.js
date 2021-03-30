@@ -12,11 +12,11 @@ const addNewUser = asyncHandler(async (req, res, next) => {
   try {
     existingUser = await User.findOne({ where: { email: email } });
   } catch (err) {
-    res.status(500).json("Signing up failed, please try again later.");
+    return res.status(500).json("Signing up failed, please try again later.");
   }
 
   if (existingUser) {
-    res.status(422).json("User exists already, please login instead.");
+    return res.status(422).json("User exists already, please login instead.");
   }
 
   let hashedPassword;
@@ -99,7 +99,7 @@ const login = asyncHandler(async (req, res, next) => {
     return res.status(500).json("Logging in failed, please try again later.");
   }
   console.log(existingUser);
-  return res.json({
+  return res.status(201).json({
     userId: existingUser.id,
     name: existingUser.name,
     email: existingUser.email,
