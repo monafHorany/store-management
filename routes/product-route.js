@@ -16,6 +16,6 @@ router.post(
   fileUpload.single("image_url"),
   productController.updateProduct
 );
-router.delete("/delete/:id", protect, admin, productController.deleteproduct);
+router.delete("/delete/:id", protect, admin, productController.deleteProduct);
 
 module.exports = router;

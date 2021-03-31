@@ -120,7 +120,7 @@ const updateProduct = asyncHandler(async (req, res, next) => {
   }
 });
 
-const deleteproduct = asyncHandler(async (req, res, next) => {
+const deleteProduct = asyncHandler(async (req, res, next) => {
   const productId = req.params.id;
   let existiedProduct;
   try {
@@ -139,10 +139,10 @@ const deleteproduct = asyncHandler(async (req, res, next) => {
     throw new Error(error);
   }
 
-  return res.status(201).json({ message: "Product deleted successfully" });
+  return res.status(201).json("Product deleted successfully");
 });
 
 exports.fetchAllProducts = fetchAllProducts;
 exports.createNewProduct = createNewProduct;
 exports.updateProduct = updateProduct;
-exports.deleteproduct = deleteproduct;
+exports.deleteProduct = deleteProduct;
