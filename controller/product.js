@@ -72,6 +72,7 @@ const createNewProduct = asyncHandler(async (req, res, next) => {
 
 const updateProduct = asyncHandler(async (req, res, next) => {
   const productId = req.params.id;
+  console.log(req.body);
   let existiedProduct;
   try {
     existiedProduct = await Product.findByPk(productId);
@@ -84,20 +85,16 @@ const updateProduct = asyncHandler(async (req, res, next) => {
     throw new Error(error);
   }
   const {
-    body: {
-      product_ar_name,
-      product_en_name,
-      product_en_desc,
-      product_ar_desc,
-      product_barcode,
-      product_sku,
-
-      quantity,
-      model_number,
-      standId,
-    },
-    file,
-  } = req;
+    product_ar_name,
+    product_en_name,
+    product_en_desc,
+    product_ar_desc,
+    product_barcode,
+    product_sku,
+    quantity,
+    model_number,
+    standId,
+  } = req.body;
   let updatedProduct;
   try {
     updatedProduct = await existiedProduct.update({
@@ -107,13 +104,11 @@ const updateProduct = asyncHandler(async (req, res, next) => {
       product_ar_desc: product_ar_desc || existiedProduct.product_ar_desc,
       product_barcode: product_barcode || existiedProduct.product_barcode,
       product_sku: product_sku || existiedProduct.product_sku,
-      image_url: file.path || existiedProduct.image_url,
       quantity: quantity || existiedProduct.quantity,
       model_number: model_number || existiedProduct.model_number,
       standId: standId || existiedProduct.standId,
     });
-    fs.unlink(existiedProduct.image_url);
-    return res.status(202).json(updatedProduct);
+    return res.status(201).json(updatedProduct);
   } catch (err) {
     res.status(500);
     throw new Error(err);

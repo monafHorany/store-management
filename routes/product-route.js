@@ -11,11 +11,7 @@ router.post(
   fileUpload.single("image_url"),
   productController.createNewProduct
 );
-router.post(
-  "/update/:id",
-  fileUpload.single("image_url"),
-  productController.updateProduct
-);
+router.post("/update/:id", productController.updateProduct);
 router.delete("/delete/:id", protect, admin, productController.deleteProduct);
 
 module.exports = router;

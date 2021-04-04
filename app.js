@@ -2,14 +2,12 @@ const dotenv = require("dotenv");
 dotenv.config();
 const express = require("express");
 const app = express();
+app.use(express.json());
 const path = require("path");
 const cors = require("cors");
 app.use(cors());
 const sequelize = require("./utils/databaseConnection");
 
-console.log(process.env.DB_HOST);
-
-app.use(express.json());
 
 const zone = require("./models/zone");
 const stand = require("./models/stands");
