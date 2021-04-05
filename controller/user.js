@@ -111,7 +111,7 @@ const login = asyncHandler(async (req, res, next) => {
 
 const updateUser = asyncHandler(async (req, res, next) => {
   const userId = req.params.id;
-  const { name, email, password, phone_number, role } = req.body;
+  const { name, email, phone_number, role } = req.body;
 
   let existingUser;
   try {
@@ -131,18 +131,12 @@ const updateUser = asyncHandler(async (req, res, next) => {
       .json("you don't have permission to edit or delete this user");
   }
 
-  let hashedPassword;
-  try {
-    hashedPassword = await bcrypt.hash(password, 12);
-  } catch (err) {
-    return res.status(500).json(err);
-  }
   let updatedUser;
   try {
     updatedUser = await existingUser.update({
       name: name || existingUser.name,
       email: email || existingUser.email,
-      password: hashedPassword || existingUser.password,
+      password: existingUser.password,
       phone_number: phone_number || existingUser.phone_number,
       role: role || existingUser.role,
     });

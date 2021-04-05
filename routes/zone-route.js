@@ -5,7 +5,7 @@ const zoneController = require("../controller/zone");
 
 router.get("/", zoneController.fetchAllZones);
 router.get("/:id", zoneController.fetchSingleZone);
-router.post("/create", protect, admin, zoneController.createNewZone);
+router.post("/create", zoneController.createNewZone);
 router.post("/update/:id", zoneController.updateZone);
 router.post("/delete/:id", zoneController.deleteZone);
 
