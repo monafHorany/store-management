@@ -7,8 +7,7 @@ const fetchAllStandsByZoneId = asyncHandler(async (req, res, next) => {
   try {
     existingStands = await Stand.findAll({ where: { zoneId: req.params.id } });
   } catch (err) {
-    res.status(500);
-    throw new Error(err);
+    return res.status(500).json(err);
   }
   if (existingStands.length == 0) {
     return;
@@ -26,14 +25,11 @@ const createNewStand = asyncHandler(async (req, res, next) => {
       },
     });
   } catch (err) {
-    res.status(500);
-    // throw new Error("creating Stand failed, please try again later.");
-    throw new Error(err);
+    return res.status(500).json(err);
   }
 
   if (existingstand) {
-    res.status(422);
-    throw new Error("Stand exists already");
+    return res.status(422).json("Stand exists already");
   }
   let createdStand;
   try {
@@ -43,8 +39,9 @@ const createNewStand = asyncHandler(async (req, res, next) => {
       zoneId: req.params.id,
     });
   } catch (err) {
-    res.status(500);
-    throw new Error("creating Stand failed, please try again later.");
+    return res
+      .status(500)
+      .json("creating Stand failed, please try again later.");
   }
   return res.status(201).json(createdStand);
 });
@@ -55,8 +52,7 @@ const updateStand = asyncHandler(async (req, res, next) => {
   try {
     existedStand = await Hand.findByPk(StandId);
     if (!existedStand) {
-      res.status(404);
-      throw new Error("no product with the given id");
+      res.status(404).json("no product with the given id");
     }
   } catch (error) {
     res.status(500);
@@ -71,8 +67,7 @@ const updateStand = asyncHandler(async (req, res, next) => {
       stand_capacity: stand_capacity || existedStand.stand_capacity,
     });
   } catch (err) {
-    res.status(500);
-    throw new Error(err);
+    return res.status(500).json(err);
   }
   return res.status(201).json(updatedStand);
 });
@@ -86,11 +81,10 @@ const deleteStand = asyncHandler(async (req, res, next) => {
       },
     });
   } catch (error) {
-    res.status(500);
-    throw new Error(error);
+    return res.status(500).json(error);
   }
 
-  return res.status(201).json({ message: "hand deleted successfully" });
+  return res.status(201).json("hand deleted successfully");
 });
 
 exports.fetchAllStandsByZoneId = fetchAllStandsByZoneId;

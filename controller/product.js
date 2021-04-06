@@ -2,6 +2,20 @@ const asyncHandler = require("express-async-handler");
 const fs = require("fs");
 const Product = require("../models/products");
 
+const fetchAllProductsByStandId = asyncHandler(async (req, res, next) => {
+  let existingProducts;
+  try {
+    existingProducts = await Product.findAll({
+      where: { standId: req.params.standId },
+    });
+  } catch (err) {
+    return res.status(500).json(err);
+  }
+  if (existingProducts.length == 0) {
+    return;
+  }
+  return res.status(200).json(existingProducts);
+});
 const fetchAllProducts = asyncHandler(async (req, res, next) => {
   let existingProducts;
   try {
@@ -138,6 +152,7 @@ const deleteProduct = asyncHandler(async (req, res, next) => {
 });
 
 exports.fetchAllProducts = fetchAllProducts;
+exports.fetchAllProductsByStandId = fetchAllProductsByStandId;
 exports.createNewProduct = createNewProduct;
 exports.updateProduct = updateProduct;
 exports.deleteProduct = deleteProduct;
