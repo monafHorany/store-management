@@ -2,7 +2,6 @@ const bcrypt = require("bcryptjs");
 const asyncHandler = require("express-async-handler");
 
 const jwt = require("jsonwebtoken");
-const fs = require("fs");
 const User = require("../models/users");
 
 const addNewUser = asyncHandler(async (req, res, next) => {
@@ -63,7 +62,7 @@ const login = asyncHandler(async (req, res, next) => {
   }
 
   if (!existingUser) {
-    res.status(403).json("Invalid credentials, could not log you in.");
+    return res.status(403).json("Invalid credentials, could not log you in.");
   }
 
   let isValidPassword = false;
