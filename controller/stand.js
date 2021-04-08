@@ -14,6 +14,18 @@ const fetchAllStandsByZoneId = asyncHandler(async (req, res, next) => {
   }
   return res.status(200).json(existingStands);
 });
+const fetchAllStands = asyncHandler(async (req, res, next) => {
+  let existingStands;
+  try {
+    existingStands = await Stand.findAll();
+  } catch (err) {
+    return res.status(500).json(err);
+  }
+  if (existingStands.length == 0) {
+    return;
+  }
+  return res.status(200).json(existingStands);
+});
 
 const createNewStand = asyncHandler(async (req, res, next) => {
   const { stand_number, stand_capacity } = req.body;
@@ -88,6 +100,7 @@ const deleteStand = asyncHandler(async (req, res, next) => {
 });
 
 exports.fetchAllStandsByZoneId = fetchAllStandsByZoneId;
+exports.fetchAllStands = fetchAllStands;
 exports.createNewStand = createNewStand;
 exports.updateStand = updateStand;
 exports.deleteStand = deleteStand;

@@ -1,10 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const handController = require("../controller/stand");
+const standController = require("../controller/stand");
 
-router.get("/:id", handController.fetchAllStandsByZoneId);
-router.post("/:id/create", handController.createNewStand);
-router.post("/update/:id", handController.updateStand);
-router.post("/delete/:id", handController.deleteStand);
+router.get("/", standController.fetchAllStands);
+router.get("/:id", standController.fetchAllStandsByZoneId);
+router.post("/:id/create", standController.createNewStand);
+router.post("/update/:id", standController.updateStand);
+router.post("/delete/:id", standController.deleteStand);
 
 module.exports = router;

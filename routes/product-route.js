@@ -6,6 +6,7 @@ const { protect, admin } = require("../middleware/authMiddleware");
 const fileUpload = require("../middleware/file-upload");
 
 router.get("/", productController.fetchAllProducts);
+router.get("/printReport", productController.productReport);
 router.get("/:standId", productController.fetchAllProductsByStandId);
 router.post(
   "/create",
