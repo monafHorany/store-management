@@ -4,18 +4,19 @@ const Product = require("../models/products");
 const path = require("path");
 
 var pdf = require("pdf-creator-node");
+const Stand = require("../models/stands");
 
 const fetchAllProductsByStandId = asyncHandler(async (req, res, next) => {
   let existingProducts;
   try {
-    existingProducts = await Product.findAll({
-      where: { standId: req.params.standId },
+    existingProducts = await Stand.findByPk(req.params.id, {
+      include: Product,
     });
   } catch (err) {
     return res.status(500).json(err);
   }
-  if (existingProducts.length == 0) {
-    return;
+  if (existingProducts.length === 0) {
+    return res.status(200).json([]);
   }
   return res.status(200).json(existingProducts);
 });
@@ -27,14 +28,13 @@ const fetchAllProducts = asyncHandler(async (req, res, next) => {
   } catch (err) {
     return res.status(500).json(err);
   }
-  if (existingProducts.length == 0) {
-    return;
+  if (existingProducts.length === 0) {
+    return res.status(200).json([]);
   }
   return res.status(200).json(existingProducts);
 });
 
 const createNewProduct = asyncHandler(async (req, res, next) => {
-  console.log(req);
   const {
     body: {
       product_ar_name,
@@ -43,10 +43,8 @@ const createNewProduct = asyncHandler(async (req, res, next) => {
       product_ar_desc,
       product_barcode,
       product_sku,
-
       quantity,
       model_number,
-      standId,
     },
     file,
   } = req;
@@ -57,14 +55,11 @@ const createNewProduct = asyncHandler(async (req, res, next) => {
       where: { product_sku: product_sku },
     });
   } catch (err) {
-    res.status(500);
-    throw new Error(err);
+    return res.status(500).json(err);
   }
 
   if (existingProducts) {
-    res
-      .status(422)
-      .json({ message: "Product exists already, please login instead." });
+    res.status(422).json({ message: "Product exists already." });
   }
   let createdProduct;
   try {
@@ -78,11 +73,9 @@ const createNewProduct = asyncHandler(async (req, res, next) => {
       quantity,
       product_sku,
       model_number,
-      standId,
     });
   } catch (err) {
-    res.status(500);
-    throw new Error(err);
+    return res.status(500).json(err);
   }
 
   return res.status(201).json(createdProduct);
@@ -95,12 +88,10 @@ const updateProduct = asyncHandler(async (req, res, next) => {
   try {
     existiedProduct = await Product.findByPk(productId);
     if (!existiedProduct) {
-      res.status(404);
-      throw new Error("no product with the given id");
+      return res.status(404).json("no product with the given id");
     }
   } catch (error) {
-    res.status(500);
-    throw new Error(error);
+    return res.status(500).json(error);
   }
   const {
     product_ar_name,
@@ -111,7 +102,6 @@ const updateProduct = asyncHandler(async (req, res, next) => {
     product_sku,
     quantity,
     model_number,
-    standId,
   } = req.body;
   let updatedProduct;
   try {
@@ -124,12 +114,10 @@ const updateProduct = asyncHandler(async (req, res, next) => {
       product_sku: product_sku || existiedProduct.product_sku,
       quantity: quantity || existiedProduct.quantity,
       model_number: model_number || existiedProduct.model_number,
-      standId: standId || existiedProduct.standId,
     });
     return res.status(201).json(updatedProduct);
   } catch (err) {
-    res.status(500);
-    throw new Error(err);
+    return res.status(500).json(err);
   }
 });
 
@@ -143,13 +131,12 @@ const deleteProduct = asyncHandler(async (req, res, next) => {
     if (existiedProduct) {
       fs.unlink(existiedProduct.image_url, (err) => {
         if (err) {
-          throw err;
+          return res.status(500).json(err);
         }
       });
     }
   } catch (error) {
-    res.status(500);
-    throw new Error(error);
+    return res.status(500).json(err);
   }
 
   return res.status(201).json("Product deleted successfully");

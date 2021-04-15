@@ -9,8 +9,8 @@ const fetchAllStandsByZoneId = asyncHandler(async (req, res, next) => {
   } catch (err) {
     return res.status(500).json(err);
   }
-  if (existingStands.length == 0) {
-    return;
+  if (existingStands.length === 0) {
+    return res.status(200).json([]);
   }
   return res.status(200).json(existingStands);
 });
@@ -21,8 +21,8 @@ const fetchAllStands = asyncHandler(async (req, res, next) => {
   } catch (err) {
     return res.status(500).json(err);
   }
-  if (existingStands.length == 0) {
-    return;
+  if (existingStands.length === 0) {
+    return res.status(200).json([]);
   }
   return res.status(200).json(existingStands);
 });

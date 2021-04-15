@@ -8,13 +8,22 @@ const cors = require("cors");
 app.use(cors());
 const sequelize = require("./utils/databaseConnection");
 
-
 const zone = require("./models/zone");
 const stand = require("./models/stands");
 const product = require("./models/products");
 const user = require("./models/users");
+const Location = require("./models/location");
 
-stand.hasMany(product, { onDelete: "cascade", onUpdate: "cascade" });
+stand.belongsToMany(product, {
+  through: Location,
+  onDelete: "cascade",
+  onUpdate: "cascade",
+});
+product.belongsToMany(stand, {
+  through: Location,
+  onDelete: "cascade",
+  onUpdate: "cascade",
+});
 zone.hasMany(stand, { onDelete: "cascade", onUpdate: "cascade" });
 app.use("/uploads/images", express.static(path.join("uploads", "images")));
 app.use("/stand", require("./routes/stand-route"));

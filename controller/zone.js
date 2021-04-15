@@ -14,7 +14,7 @@ const fetchAllZones = asyncHandler(async (req, res, next) => {
     throw new Error(err);
   }
   if (existingZones.length === 0) {
-    return res.status(404).json("no zones found");
+    return res.status(200).json([]);
   }
   return res.status(200).json(existingZones);
 });

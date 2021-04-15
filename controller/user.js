@@ -51,10 +51,8 @@ const addNewUser = asyncHandler(async (req, res, next) => {
 
 const login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
-  console.log(req.body);
-
+  console.log(process.env);
   let existingUser;
-
   try {
     existingUser = await User.findOne({ where: { email: email } });
   } catch (err) {
@@ -160,7 +158,7 @@ const fetchAllUsers = asyncHandler(async (req, res, next) => {
     return res.status(500).json(err);
   }
   if (existingUsers.length == 0) {
-    return res.status(200).json("no users found");
+    return res.status(200).json([]);
   }
   return res.status(200).json(existingUsers);
 });
