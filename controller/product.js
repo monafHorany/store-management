@@ -2,7 +2,6 @@ const asyncHandler = require("express-async-handler");
 const fs = require("fs");
 const Product = require("../models/products");
 const path = require("path");
-const excelToJson = require("convert-excel-to-json");
 var pdf = require("pdf-creator-node");
 const Stand = require("../models/stands");
 
@@ -231,21 +230,14 @@ const productReport = asyncHandler(async (req, res, next) => {
       console.error(error);
     });
 });
-
+const csv = require("csvtojson");
 const importCsv = asyncHandler(async (req, res, next) => {
-  const result = excelToJson({
-    source: fs.readFileSync("wc-product-export-14-4-2021-1618408045314.csv"),
-    header: {
-      rows: 1,
-    },
-    columnToKey: {
-      A: "id",
-      B: "Type",
-    },
-  });
-
-  console.log(result);
-  return res.status(200).send(result);
+  csv()
+    .fromFile("wc-product-export-14-4-2021-1618408045314.csv")
+    .then((jsonObj) => {
+      console.log(jsonObj);
+      return res.status(200).send(jsonObj);
+    });
 });
 
 exports.fetchAllProducts = fetchAllProducts;
