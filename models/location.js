@@ -8,6 +8,10 @@ const Location = sequelize.define("location", {
     allowNull: false,
     autoIncrement: true,
   },
+  quantity: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
   zoneId: {
     type: DataTypes.INTEGER,
     allowNull: false,

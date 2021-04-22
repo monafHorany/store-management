@@ -23,7 +23,6 @@ const fetchAllProducts = asyncHandler(async (req, res, next) => {
   let existingProducts;
   try {
     existingProducts = await Product.findAll();
-    console.log(existingProducts);
   } catch (err) {
     return res.status(500).json(err);
   }
@@ -63,9 +62,7 @@ const createNewProduct = asyncHandler(async (req, res, next) => {
   let createdProduct;
   try {
     createdProduct = await Product.create({
-      product_ar_name,
       product_en_name,
-      product_ar_desc,
       product_en_desc,
       image_url: file.path,
       product_barcode,
@@ -232,12 +229,22 @@ const productReport = asyncHandler(async (req, res, next) => {
 });
 const csv = require("csvtojson");
 const importCsv = asyncHandler(async (req, res, next) => {
-  csv()
-    .fromFile("wc-product-export-14-4-2021-1618408045314.csv")
-    .then((jsonObj) => {
-      console.log(jsonObj);
-      return res.status(200).send(jsonObj);
+  const jsonArray = await csv().fromFile(
+    "wc-product-export-20-4-2021-1618918484724.csv"
+  );
+
+  for (let i = 0; i < jsonArray.length; i++) {
+    await Product.create({
+      product_en_name: jsonArray[i].Name,
+      product_en_desc: jsonArray[i]["Short description"].split("\\n").join(""),
+      image_url: jsonArray[i].Images.split(",")[0],
+      product_barcode: null,
+      product_sku: jsonArray[i].SKU,
+      model_number: null,
     });
+  }
+
+  return res.status(200).json(jsonArray);
 });
 
 exports.fetchAllProducts = fetchAllProducts;
