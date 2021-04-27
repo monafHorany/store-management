@@ -1,6 +1,5 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../utils/databaseConnection");
-
 const Location = sequelize.define("location", {
   id: {
     type: DataTypes.INTEGER,
