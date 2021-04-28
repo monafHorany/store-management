@@ -30,5 +30,6 @@ app.use("/stand", require("./routes/stand-route"));
 app.use("/zone", require("./routes/zone-route"));
 app.use("/product", require("./routes/product-route"));
 app.use("/user", require("./routes/user-route"));
+app.use("/location", require("./routes/location"));
 
 sequelize.sync().then(app.listen(5000));

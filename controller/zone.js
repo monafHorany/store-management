@@ -1,4 +1,5 @@
 const asyncHandler = require("express-async-handler");
+const Location = require("../models/location");
 const Product = require("../models/products");
 const Stand = require("../models/stands");
 const Zone = require("../models/zone");

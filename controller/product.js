@@ -8,7 +8,7 @@ const Stand = require("../models/stands");
 const fetchAllProductsByStandId = asyncHandler(async (req, res, next) => {
   let existingProducts;
   try {
-    existingProducts = await Stand.findByPk(req.params.id, {
+    existingProducts = await Stand.findByPk(req.params.standId, {
       include: Product,
     });
   } catch (err) {
@@ -35,10 +35,8 @@ const fetchAllProducts = asyncHandler(async (req, res, next) => {
 const createNewProduct = asyncHandler(async (req, res, next) => {
   const {
     body: {
-      product_ar_name,
       product_en_name,
       product_en_desc,
-      product_ar_desc,
       product_barcode,
       product_sku,
       quantity,
