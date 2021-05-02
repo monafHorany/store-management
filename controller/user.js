@@ -51,7 +51,6 @@ const addNewUser = asyncHandler(async (req, res, next) => {
 
 const login = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
-  console.log(process.env);
   let existingUser;
   try {
     existingUser = await User.findOne({ where: { email: email } });
@@ -95,7 +94,6 @@ const login = asyncHandler(async (req, res, next) => {
   } catch (err) {
     return res.status(500).json("Logging in failed, please try again later.");
   }
-  console.log(existingUser);
   return res.status(201).json({
     userId: existingUser.id,
     name: existingUser.name,
@@ -167,7 +165,6 @@ const deleteUser = asyncHandler(async (req, res, next) => {
   let existingUser;
   try {
     existingUser = await User.findByPk(userId);
-    console.log(existingUser);
   } catch (err) {
     return res.status(500).json(err);
   }

@@ -22,7 +22,7 @@ const fetchAllProductsByStandId = asyncHandler(async (req, res, next) => {
 const fetchAllProducts = asyncHandler(async (req, res, next) => {
   let existingProducts;
   try {
-    existingProducts = await Product.findAll();
+    existingProducts = await Product.findAll({ include: Stand });
   } catch (err) {
     return res.status(500).json(err);
   }
@@ -141,7 +141,7 @@ const productReport = asyncHandler(async (req, res, next) => {
   console.log(allProducts);
   const options = {
     format: "A4",
-    orientation: "portrait",
+    orientation: "landscape",
     border: "5mm",
     header: {
       height: "72mm",
@@ -168,7 +168,6 @@ const productReport = asyncHandler(async (req, res, next) => {
         <td style="font-weight: bold !important; background-color: #0D1117 !important; color: white !important">Barcode</td>
         <td style="font-weight: bold !important; background-color: #0D1117 !important; color: white !important">SKU</td>
         <td style="font-weight: bold !important; background-color: #0D1117 !important; color: white !important">Model</td>
-        <td style="font-weight: bold !important; background-color: #0D1117 !important; color: white !important">Added At</td>
       </tr>
 
       </thead>
@@ -177,29 +176,26 @@ const productReport = asyncHandler(async (req, res, next) => {
         (product) =>
           `<tr>
         <td style=" background-color: #0D1117 !important; color: white !important">${
-          product.product_en_name
+          product.product_en_name ? product.product_en_name : ""
         }</td>
         <td style=" background-color: #0D1117 !important; color: white !important">${
-          product.product_barcode
+          product.product_barcode ? product.product_barcode : ""
         }</td>
         <td style=" background-color: #0D1117 !important; color: white !important">${
-          product.product_sku
+          product.product_sku ? product.product_sku : ""
         }</td>
         <td style=" background-color: #0D1117 !important; color: white !important">${
-          product.model_number
+          product.model_number ? product.model_number : ""
         }</td>
-        <td style=" background-color: #0D1117 !important; color: white !important">${new Date(
-          product.createdAt
-        ).toLocaleDateString("en-GB")}</td>
         </tr>`
       )}
-     
-      </tbody>
-    </table>
-       
-      </body>
-    </html>
-    `,
+        
+        </tbody>
+        </table>
+        
+        </body>
+        </html>
+        `,
     data: {},
     path: `./PRODUCT-REPORT.pdf`,
   };
@@ -252,3 +248,7 @@ exports.importCsv = importCsv;
 exports.updateProduct = updateProduct;
 exports.deleteProduct = deleteProduct;
 exports.productReport = productReport;
+
+// <td style=" background-color: #0D1117 !important; color: white !important">${new Date(
+//   product.createdAt
+// ).toLocaleDateString("en-GB")}</td>
