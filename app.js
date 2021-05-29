@@ -13,6 +13,8 @@ const stand = require("./models/stands");
 const product = require("./models/products");
 const user = require("./models/users");
 const Location = require("./models/location");
+const Order = require("./models/order");
+const OrderItem = require("./models/orderItems");
 
 stand.belongsToMany(product, {
   through: Location,
@@ -25,11 +27,13 @@ product.belongsToMany(stand, {
   onUpdate: "cascade",
 });
 zone.hasMany(stand, { onDelete: "cascade", onUpdate: "cascade" });
+Order.hasMany(OrderItem, { onDelete: "cascade", onUpdate: "cascade" });
 app.use("/uploads/images", express.static(path.join("uploads", "images")));
 app.use("/stand", require("./routes/stand-route"));
 app.use("/zone", require("./routes/zone-route"));
 app.use("/product", require("./routes/product-route"));
 app.use("/user", require("./routes/user-route"));
 app.use("/location", require("./routes/location"));
+app.use("/order", require("./routes/order"));
 
 sequelize.sync().then(app.listen(5000));

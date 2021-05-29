@@ -24,8 +24,8 @@ const OrderItem = sequelize.define("order_item", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  item_image_url: {
-    type: DataTypes.STRING,
+  total: {
+    type: DataTypes.DOUBLE,
     allowNull: false,
   },
 });

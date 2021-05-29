@@ -17,6 +17,18 @@ const Order = sequelize.define("order", {
     allowNull: false,
     defaultValue: false,
   },
+  currency: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  total: {
+    type: DataTypes.DOUBLE,
+    allowNull: false,
+  },
+  payment_method: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   woo_order_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -24,7 +36,7 @@ const Order = sequelize.define("order", {
   note: {
     type: DataTypes.TEXT,
     allowNull: true,
-  },    
+  },
 });
 
 module.exports = Order;
