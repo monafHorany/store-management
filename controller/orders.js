@@ -2,6 +2,9 @@ const WooCommerceRestApi = require("@woocommerce/woocommerce-rest-api").default;
 const asyncHandler = require("express-async-handler");
 const fs = require("fs");
 const Order = require("../models/order");
+const Product = require("../models/products");
+const Stand = require("../models/stands");
+
 const path = require("path");
 const pdf = require("pdf-creator-node");
 // const csv = require("csvtojson");
@@ -16,39 +19,37 @@ const WooCommerce = new WooCommerceRestApi({
   wpAPI: true,
   version: "wc/v1",
 });
-// WooCommerce.get(
-//   `orders?after=${new Date("2021-05-25").toISOString()}&order=asc`
-// )
-//   .then((response) => {
-//     console.log(response.data);
-//   })
-//   .catch((error) => {
-//     console.log(error.response.data);
-//   });
-
-// const fetchAllOrder = asyncHandler(async (req, res, next) => {
-//   let existingOrders;
-//   try {
-//     existingOrders = await Order.findAll();
-//   } catch (err) {
-//     return res.status(500).json(err);
-//   }
-//   if (existingOrders.length === 0) {
-//     return res.status(200).json({ messsage: "no orders yet" });
-//   }
-//   return res.status(200).json(existingOrders);
-// });
 
 const fetchAllOrder = asyncHandler(async (req, res, next) => {
+  let allOrders;
+  try {
+    allOrders = await Order.findAll({ include: OrderItem });
+    return res.status(200).json(allOrders);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+const fetchProductBySku = asyncHandler(async (req, res, next) => {
+  let product;
+  try {
+    product = await Product.findOne({
+      where: { product_sku: req.body.sku },
+      include: Stand,
+    });
+    return res.status(200).json(product);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+const fetchAllOrderFromWoocommerce = asyncHandler(async (req, res, next) => {
   const { data } = await WooCommerce.get(
     `orders?after=${new Date("2021-05-25").toISOString()}&order=desc`
   );
   const allOrders = await Order.findAll();
   for (let j = 0; j < data.length; j++) {
     const woo_order = data[j];
-    // const matchedOrder = allOrders.filter(
-    //   (order) => +order.woo_order_id === +woo_order.id
-    // );
     var found = allOrders.some((el) => el.woo_order_id === woo_order.id);
     if (!found) {
       try {
@@ -88,51 +89,6 @@ const fetchAllOrder = asyncHandler(async (req, res, next) => {
   }
 
   return res.status(200).json({ message: "new order received" });
-  // if (allOrders.length > 0) {
-  //   for (let i = 0; i < allOrders.length; i++) {
-  //     const order = allOrders[i];
-  //     for (let j = 0; j < data.length; j++) {
-  //       const woo_order = data[j];
-  //       if (
-  //         woo_order.date_created > new Date("2021-05-25") &&
-  //         order.woo_order_id !== woo_order.id
-  //       ) {
-  // try {
-  //   const result = await sequelize.transaction(async (t) => {
-  //     const createdOrder = await Order.create(
-  //       {
-  //         ordered_by:
-  //           woo_order.billing.first_name + woo_order.billing.last_name,
-  //         currency: woo_order.currency,
-  //         total: woo_order.total,
-  //         payment_method: woo_order.payment_method_title,
-  //         woo_order_id: woo_order.id,
-  //       },
-  //       { transaction: t }
-  //     );
-  //     for (k = 0; k < woo_order.line_items.length; k++) {
-  //       const orderItem = woo_order.line_items[k];
-  //       await OrderItem.create(
-  //         {
-  //           item_name: orderItem.name,
-  //           item_sku: orderItem.sku,
-  //           item_price: orderItem.price,
-  //           item_quantity: orderItem.quantity,
-  //           orderId: woo_order.id,
-  //         },
-  //         { transaction: t }
-  //       );
-  //     }
-  //   });
-  //   return res.status(201).json({ message: "new order created" });
-  // } catch (err) {
-  //   throw new Error(err);
-  // }
-  // }
-  // }
-  // }
-  // } else {
-  // }
 });
 
 const updateOrder = asyncHandler(async (req, res, next) => {
@@ -174,116 +130,8 @@ const deleteOrder = asyncHandler(async (req, res, next) => {
   return res.status(201).json("Order deleted successfully");
 });
 
-const productReport = asyncHandler(async (req, res, next) => {
-  const allProducts = await Product.findAll();
-  console.log(allProducts);
-  const options = {
-    format: "A4",
-    orientation: "portrait",
-    border: "5mm",
-    header: {
-      height: "72mm",
-      contents: '<div style="text-align: center;">ORJEEN</div>',
-    },
-  };
-
-  const document = {
-    html: `<!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8" />
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-      </head>
-      <body style=" background-color: #0D1117;color: #0D1117;">
-      <table class="table table-striped table-hover">
-      <thead style=" background-color: #0D1117">
-      <tr>
-        <td style="font-weight: bold !important; background-color: #0D1117 !important; color: white !important">Title</td>
-        <td style="font-weight: bold !important; background-color: #0D1117 !important; color: white !important">Barcode</td>
-        <td style="font-weight: bold !important; background-color: #0D1117 !important; color: white !important">SKU</td>
-        <td style="font-weight: bold !important; background-color: #0D1117 !important; color: white !important">Model</td>
-        <td style="font-weight: bold !important; background-color: #0D1117 !important; color: white !important">Added At</td>
-      </tr>
-      </thead>
-      <tbody>
-      ${allProducts.map(
-        (product) =>
-          `<tr>
-        <td style=" background-color: #0D1117 !important; color: white !important">${
-          product.product_en_name
-        }</td>
-        <td style=" background-color: #0D1117 !important; color: white !important">${
-          product.product_barcode
-        }</td>
-        <td style=" background-color: #0D1117 !important; color: white !important">${
-          product.product_sku
-        }</td>
-        <td style=" background-color: #0D1117 !important; color: white !important">${
-          product.model_number
-        }</td>
-        <td style=" background-color: #0D1117 !important; color: white !important">${new Date(
-          product.createdAt
-        ).toLocaleDateString("en-GB")}</td>
-        </tr>`
-      )}
-
-      </tbody>
-    </table>
-
-      </body>
-    </html>
-    `,
-    data: {},
-    path: `./PRODUCT-REPORT.pdf`,
-  };
-  pdf
-    .create(document, options)
-    .then((response) => {
-      const invoiceName = "PRODUCT-REPORT.pdf";
-      const invoicePath = path.resolve(invoiceName);
-      fs.readFile(invoicePath, (err, data) => {
-        if (err) {
-          return console.log("err" + err);
-        }
-        res.setHeader("Content-Type", "application/pdf");
-        res.setHeader(
-          "Content-Disposition",
-          'inline; filename="' + invoiceName + '"'
-        );
-        res.send(data);
-      });
-      console.log(response);
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-});
-
-const importCsv = asyncHandler(async (req, res, next) => {
-  const jsonArray = await csv().fromFile(
-    "wc-product-export-20-4-2021-1618918484724.csv"
-  );
-
-  for (let i = 0; i < jsonArray.length; i++) {
-    await Product.create({
-      product_en_name: jsonArray[i].Name,
-      product_en_desc: jsonArray[i]["Short description"].split("\\n").join(""),
-      image_url: jsonArray[i].Images.split(",")[0],
-      product_barcode: null,
-      product_sku: jsonArray[i].SKU,
-      model_number: null,
-    });
-  }
-
-  return res.status(200).json(jsonArray);
-});
-
 exports.fetchAllOrder = fetchAllOrder;
-// exports.fetchAllOrderItemsByBoxId = fetchAllOrderItemsByBoxId;
-// exports.createNewOrder = createNewOrder;
-// exports.importCsv = importCsv;
+exports.fetchProductBySku = fetchProductBySku;
+exports.fetchAllOrderFromWoocommerce = fetchAllOrderFromWoocommerce;
 exports.updateOrder = updateOrder;
 exports.deleteOrder = deleteOrder;
-// exports.productReport = productReport;

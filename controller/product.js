@@ -24,7 +24,7 @@ const fetchAllProducts = asyncHandler(async (req, res, next) => {
   try {
     existingProducts = await Product.findAll({
       include: Stand,
-      order: [["createdAt", "DESC"]],
+      order: [["id", "DESC"]],
     });
   } catch (err) {
     return res.status(500).json(err);
