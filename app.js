@@ -12,9 +12,11 @@ const zone = require("./models/zone");
 const stand = require("./models/stands");
 const product = require("./models/products");
 const user = require("./models/users");
+const Refund = require("./models/refund");
 const Location = require("./models/location");
 const Order = require("./models/order");
 const OrderItem = require("./models/orderItems");
+const { fetchAllOrderFromWoocommerce } = require("./controller/testing");
 
 stand.belongsToMany(product, {
   through: Location,
@@ -36,4 +38,5 @@ app.use("/user", require("./routes/user-route"));
 app.use("/location", require("./routes/location"));
 app.use("/order", require("./routes/order"));
 
+setInterval(() => fetchAllOrderFromWoocommerce(), 3000);
 sequelize.sync().then(app.listen(5000));

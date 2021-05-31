@@ -1,10 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const orderController = require("../controller/orders");
+const testController = require("../controller/testing");
 
 router.get(
   "/fetchAllOrderFromWoocommerce",
   orderController.fetchAllOrderFromWoocommerce
+);
+router.get(
+  "/fetchAllOrderFromWoocommerceTest",
+  testController.fetchAllOrderFromWoocommerce
 );
 router.get("/fetchAllNewOrder", orderController.fetchAllNewOrder);
 router.post("/createBill", orderController.fetchProductBySku);
