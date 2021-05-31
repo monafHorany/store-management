@@ -8,8 +8,32 @@ const Order = sequelize.define("order", {
     autoIncrement: true,
     primaryKey: true,
   },
-  ordered_by: {
+  order_owner_name: {
     type: DataTypes.STRING,
+    allowNull: false,
+  },
+  order_owner_email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  order_owner_phone_number: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  order_created_date: {
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
+  order_status: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  billing_address: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  },
+  shipping_address: {
+    type: DataTypes.TEXT,
     allowNull: false,
   },
   is_finished: {

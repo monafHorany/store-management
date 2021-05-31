@@ -6,7 +6,7 @@ router.get(
   "/fetchAllOrderFromWoocommerce",
   orderController.fetchAllOrderFromWoocommerce
 );
-router.get("/fetchAllNewOrder", orderController.fetchAllOrder);
+router.get("/fetchAllNewOrder", orderController.fetchAllNewOrder);
 router.post("/createBill", orderController.fetchProductBySku);
 // router.delete("/delete/:id", locationController.deleteProductFromLocation);
 

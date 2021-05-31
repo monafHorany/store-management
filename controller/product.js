@@ -234,18 +234,22 @@ const productReport = asyncHandler(async (req, res, next) => {
 const csv = require("csvtojson");
 const importCsv = asyncHandler(async (req, res, next) => {
   const jsonArray = await csv().fromFile(
-    "wc-product-export-20-4-2021-1618918484724.csv"
+    "wc-product-export-31-5-2021-1622449002546.csv"
   );
-
   for (let i = 0; i < jsonArray.length; i++) {
-    await Product.create({
-      product_en_name: jsonArray[i].Name,
-      product_en_desc: jsonArray[i]["Short description"].split("\\n").join(""),
-      image_url: jsonArray[i].Images.split(",")[0],
-      product_barcode: null,
-      product_sku: jsonArray[i].SKU,
-      model_number: null,
-    });
+    // console.log(typeof jsonArray[i]["Published"]);
+    if (jsonArray[i]["In stock?"] && jsonArray[i]["Published"] === "1") {
+      await Product.create({
+        product_en_name: jsonArray[i].Name,
+        product_en_desc: jsonArray[i]["Short description"]
+          .split("\\n")
+          .join(""),
+        image_url: jsonArray[i].Images.split(",")[0],
+        product_barcode: null,
+        product_sku: jsonArray[i].SKU,
+        model_number: null,
+      });
+    }
   }
 
   return res.status(200).json(jsonArray);
