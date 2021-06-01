@@ -5,12 +5,10 @@ const Order = require("../models/order");
 const Product = require("../models/products");
 const Stand = require("../models/stands");
 const Refund = require("../models/refund");
-
 const path = require("path");
 const pdf = require("pdf-creator-node");
 const OrderItem = require("../models/orderItems");
 const sequelize = require("../utils/databaseConnection");
-
 const WooCommerce = new WooCommerceRestApi({
   url: "http://172.105.249.132/",
   consumerKey: "ck_ed53259da480ec781071607da9a821e4f35a91a8",
@@ -18,7 +16,6 @@ const WooCommerce = new WooCommerceRestApi({
   wpAPI: true,
   version: "wc/v1",
 });
-
 const fetchAllOrderFromWoocommerce = asyncHandler(async (req, res, next) => {
   console.log("called");
   const { data } = await WooCommerce.get(

@@ -38,5 +38,5 @@ app.use("/user", require("./routes/user-route"));
 app.use("/location", require("./routes/location"));
 app.use("/order", require("./routes/order"));
 
-setInterval(() => fetchAllOrderFromWoocommerce(), 3000);
+// setInterval(() => fetchAllOrderFromWoocommerce(), 3000);
 sequelize.sync().then(app.listen(5000));
