@@ -49,7 +49,13 @@ const fetchProductBySku = asyncHandler(async (req, res, next) => {
 
 const fetchAllOrderFromWoocommerce = asyncHandler(async (req, res, next) => {
   var threeMonthsAgo = moment().subtract(1, "days");
-  const { data } = await WooCommerce.get("orders?page=22&per_page=100");
+  await sequelize.query("SET FOREIGN_KEY_CHECKS = 0");
+  await OrderItem.destroy({
+    truncate: true,
+  });
+  await Order.destroy({
+    truncate: true,
+  });
   let page_num = 1;
   while (true) {
     const { data } = await WooCommerce.get(
