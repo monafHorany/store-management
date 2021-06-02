@@ -9,18 +9,18 @@ const path = require("path");
 const pdf = require("pdf-creator-node");
 const OrderItem = require("../models/orderItems");
 const sequelize = require("../utils/databaseConnection");
-// const WooCommerce = new WooCommerceRestApi({
-//   url: "https://www.orjeen.com/",
-//   consumerKey: "ck_6a4943efca5beb973900d31d6a5e4f397c8116ba",
-//   consumerSecret: "cs_85a3dcb8a42ce7b2c4714bb1d6027b3196c8bc8e",
-//   version: "wc/v3",
-// });
 const WooCommerce = new WooCommerceRestApi({
-  url: "http://172.105.249.132/",
-  consumerKey: "ck_ed53259da480ec781071607da9a821e4f35a91a8",
-  consumerSecret: "cs_da54315c1989c598785bcc09d59eaa110b8f3a27",
+  url: "https://www.orjeen.com/",
+  consumerKey: "ck_6a4943efca5beb973900d31d6a5e4f397c8116ba",
+  consumerSecret: "cs_85a3dcb8a42ce7b2c4714bb1d6027b3196c8bc8e",
   version: "wc/v3",
 });
+// const WooCommerce = new WooCommerceRestApi({
+//   url: "http://172.105.249.132/",
+//   consumerKey: "ck_ed53259da480ec781071607da9a821e4f35a91a8",
+//   consumerSecret: "cs_da54315c1989c598785bcc09d59eaa110b8f3a27",
+//   version: "wc/v3",
+// });
 const fetchAllNewOrder = asyncHandler(async (req, res, next) => {
   let allOrders;
   try {
@@ -48,15 +48,14 @@ const fetchProductBySku = asyncHandler(async (req, res, next) => {
 });
 
 const fetchAllOrderFromWoocommerce = asyncHandler(async (req, res, next) => {
-  // var threeMonthsAgo = moment().subtract(1, "months");
-
-  // console.log(new Date(threeMonthsAgo.format()).toISOString());
-  // console.log(threeMonthsAgo.format());
-  // const { data } = await WooCommerce.get("orders?page=22&per_page=100");
+  var threeMonthsAgo = moment().subtract(1, "days");
+  const { data } = await WooCommerce.get("orders?page=22&per_page=100");
   let page_num = 1;
   while (true) {
     const { data } = await WooCommerce.get(
-      `orders?page=${page_num}&per_page=100`
+      `orders?page=${page_num}&per_page=100&after=${new Date(
+        threeMonthsAgo.format()
+      ).toISOString()}`
     );
     let createdOrder;
     let updatedOrder;
