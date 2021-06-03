@@ -21,6 +21,24 @@ const WooCommerce = new WooCommerceRestApi({
 //   consumerSecret: "cs_da54315c1989c598785bcc09d59eaa110b8f3a27",
 //   version: "wc/v3",
 // });
+
+const fetchOrderById = asyncHandler(async (req, res, next) => {
+  console.log(req.params.orderId);
+  let order;
+  try {
+    order = await Order.findOne({
+      where: {
+        woo_order_id: +req.params.orderId,
+      },
+      include: OrderItem,
+    });
+    console.log(order);
+    return res.status(200).json(order);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
 const fetchAllNewOrder = asyncHandler(async (req, res, next) => {
   let allOrders;
   try {
@@ -48,6 +66,16 @@ const fetchProductBySku = asyncHandler(async (req, res, next) => {
 });
 
 const fetchAllOrderFromWoocommerce = asyncHandler(async (req, res, next) => {
+  // const orderIds = [
+  //   47172, 48325, 48374, 50490, 51169, 51159, 51159, 51074, 51718, 51714, 51534,
+  //   51530, 51387, 51371,
+  // ];
+  // const update = {
+  //   status: "cancelled",
+  // };
+  // orderIds.map(async (id) => {
+  //   const { data } = await WooCommerce.put(`orders/${id}`, update);
+  // });
   var threeMonthsAgo = moment().subtract(1, "days");
   await sequelize.query("SET FOREIGN_KEY_CHECKS = 0");
   await OrderItem.destroy({
@@ -64,80 +92,11 @@ const fetchAllOrderFromWoocommerce = asyncHandler(async (req, res, next) => {
       ).toISOString()}`
     );
     let createdOrder;
-    let updatedOrder;
-    const allOrders = await Order.findAll();
     for (let j = 0; j < data.length; j++) {
       const woo_order = data[j];
-      var found = allOrders.some((el) => el.woo_order_id === woo_order.id);
-      if (!found) {
-        try {
-          const result = await sequelize.transaction(async (t) => {
-            createdOrder = await Order.create(
-              {
-                order_owner_name:
-                  woo_order.billing.first_name +
-                  " " +
-                  woo_order.billing.last_name,
-                order_owner_email: woo_order.billing.email,
-                order_owner_phone_number: woo_order.billing.phone,
-                order_created_date: woo_order.date_created,
-                order_status: woo_order.status,
-                billing_address:
-                  woo_order.billing.address_1 +
-                  " " +
-                  woo_order.billing.address_2 +
-                  " " +
-                  woo_order.billing.city +
-                  " " +
-                  woo_order.billing.state +
-                  " " +
-                  woo_order.billing.postcode +
-                  " " +
-                  woo_order.billing.country,
-                shipping_address:
-                  woo_order.shipping.address_1 +
-                  " " +
-                  woo_order.shipping.address_2 +
-                  " " +
-                  woo_order.shipping.city +
-                  " " +
-                  woo_order.shipping.country,
-                currency: woo_order.currency,
-                total: woo_order.total,
-                payment_method: woo_order.payment_method_title,
-                woo_order_id: woo_order.id,
-              },
-              { transaction: t }
-            );
-            for (k = 0; k < woo_order.line_items.length; k++) {
-              const orderItem = woo_order.line_items[k];
-              if (
-                orderItem.name &&
-                orderItem.sku &&
-                orderItem.price &&
-                orderItem.quantity &&
-                orderItem.total
-              ) {
-                await OrderItem.create(
-                  {
-                    item_name: orderItem.name,
-                    item_sku: orderItem.sku,
-                    item_price: orderItem.price,
-                    item_quantity: orderItem.quantity,
-                    total: orderItem.total,
-                    orderId: createdOrder.id,
-                  },
-                  { transaction: t }
-                );
-              }
-            }
-          });
-        } catch (err) {
-          throw new Error(err);
-        }
-      } else {
-        try {
-          updatedOrder = await Order.update(
+      try {
+        const result = await sequelize.transaction(async (t) => {
+          createdOrder = await Order.create(
             {
               order_owner_name:
                 woo_order.billing.first_name +
@@ -172,15 +131,33 @@ const fetchAllOrderFromWoocommerce = asyncHandler(async (req, res, next) => {
               payment_method: woo_order.payment_method_title,
               woo_order_id: woo_order.id,
             },
-            {
-              where: {
-                woo_order_id: woo_order.id,
-              },
-            }
+            { transaction: t }
           );
-        } catch (error) {
-          throw new Error(error);
-        }
+          for (k = 0; k < woo_order.line_items.length; k++) {
+            const orderItem = woo_order.line_items[k];
+            if (
+              orderItem.name &&
+              orderItem.sku &&
+              orderItem.price &&
+              orderItem.quantity &&
+              orderItem.total
+            ) {
+              await OrderItem.create(
+                {
+                  item_name: orderItem.name,
+                  item_sku: orderItem.sku,
+                  item_price: orderItem.price,
+                  item_quantity: orderItem.quantity,
+                  total: orderItem.total,
+                  orderId: createdOrder.id,
+                },
+                { transaction: t }
+              );
+            }
+          }
+        });
+      } catch (err) {
+        throw new Error(err);
       }
     }
     page_num++;
@@ -189,7 +166,6 @@ const fetchAllOrderFromWoocommerce = asyncHandler(async (req, res, next) => {
       return res.status(200).json(data);
     }
   }
-
   // return res.status(200).json(data);
 });
 
@@ -233,6 +209,7 @@ const deleteOrder = asyncHandler(async (req, res, next) => {
 });
 
 exports.fetchAllNewOrder = fetchAllNewOrder;
+exports.fetchOrderById = fetchOrderById;
 exports.fetchProductBySku = fetchProductBySku;
 exports.fetchAllOrderFromWoocommerce = fetchAllOrderFromWoocommerce;
 exports.updateOrder = updateOrder;

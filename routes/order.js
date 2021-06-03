@@ -7,6 +7,7 @@ router.get(
   "/fetchAllOrderFromWoocommerce",
   orderController.fetchAllOrderFromWoocommerce
 );
+router.get("/order/:orderId", orderController.fetchOrderById);
 router.get(
   "/fetchAllOrderFromWoocommerceTest",
   testController.fetchAllOrderFromWoocommerce
