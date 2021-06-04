@@ -16,6 +16,7 @@ const Refund = require("./models/refund");
 const Location = require("./models/location");
 const Order = require("./models/order");
 const OrderItem = require("./models/orderItems");
+const Bill = require("./models/bill");
 
 stand.belongsToMany(product, {
   through: Location,
@@ -29,6 +30,7 @@ product.belongsToMany(stand, {
 });
 zone.hasMany(stand, { onDelete: "cascade", onUpdate: "cascade" });
 Order.hasMany(OrderItem, { onDelete: "cascade", onUpdate: "cascade" });
+Order.hasOne(Bill, { onDelete: "cascade", onUpdate: "cascade" });
 app.use("/uploads/images", express.static(path.join("uploads", "images")));
 app.use("/stand", require("./routes/stand-route"));
 app.use("/zone", require("./routes/zone-route"));

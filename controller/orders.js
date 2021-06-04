@@ -9,6 +9,7 @@ const path = require("path");
 const pdf = require("pdf-creator-node");
 const OrderItem = require("../models/orderItems");
 const sequelize = require("../utils/databaseConnection");
+const Location = require("../models/location");
 const WooCommerce = new WooCommerceRestApi({
   url: "https://www.orjeen.com/",
   consumerKey: "ck_6a4943efca5beb973900d31d6a5e4f397c8116ba",
@@ -23,7 +24,6 @@ const WooCommerce = new WooCommerceRestApi({
 // });
 
 const fetchOrderById = asyncHandler(async (req, res, next) => {
-  console.log(req.params.orderId);
   let order;
   try {
     order = await Order.findOne({
@@ -32,7 +32,6 @@ const fetchOrderById = asyncHandler(async (req, res, next) => {
       },
       include: OrderItem,
     });
-    console.log(order);
     return res.status(200).json(order);
   } catch (error) {
     throw new Error(error);
@@ -207,8 +206,63 @@ const deleteOrder = asyncHandler(async (req, res, next) => {
 
   return res.status(201).json("Order deleted successfully");
 });
+const processBill = asyncHandler(async (req, res, next) => {
+  const orderItems = req.body;
+  let product;
+  for (let index = 0; index < orderItems.length; index++) {
+    const item = orderItems[index];
+    try {
+      product = await Product.findOne({
+        where: {
+          product_sku: item.item_sku,
+        },
+        include: Stand,
+      });
+    } catch (error) {
+      throw new Error(error);
+    }
+    for (let index2 = 0; index2 < product.stands.length; index2++) {
+      const stand = product.stands[index2];
+      if (stand.location.quantity > item.item_quantity) {
+        try {
+          await Location.update(
+            { quantity: stand.location.quantity - item.item_quantity },
+            { where: { id: stand.location.id } }
+          );
+        } catch (error) {
+          throw new Error(error);
+        }
+        break;
+      }
+    }
+
+    // if (product.stands.length > 1) {
+    //   for (let index2 = 0; index2 < product.stands.length; index2++) {
+    //     const stand = product.stands[index2];
+    //     if(stand.location.quantity < item.item_quantity){
+    //       const subtraction = item.item_quantity - stand.location.quantity;
+
+    //     }
+    //     await Location.update({
+    //       quantity: stand.location.quantity - item.item_quantity
+    //     })
+    //   }
+    // }
+    // if (
+    //   item.item_quantity >
+    //   product.stands.reduce(
+    //     (acc, currentValue) => acc + currentValue.location.quantity,
+    //     0
+    //   )
+    // )
+  }
+  return res.status(201).json("Bill created");
+  // console.log(orderItems);
+  // return res.json(product);
+});
 
 exports.fetchAllNewOrder = fetchAllNewOrder;
+exports.processBill = processBill;
 exports.fetchOrderById = fetchOrderById;
 exports.fetchProductBySku = fetchProductBySku;
 exports.fetchAllOrderFromWoocommerce = fetchAllOrderFromWoocommerce;

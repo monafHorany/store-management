@@ -8,12 +8,12 @@ router.get(
   orderController.fetchAllOrderFromWoocommerce
 );
 router.get("/order/:orderId", orderController.fetchOrderById);
-router.get(
-  "/fetchAllOrderFromWoocommerceTest",
-  testController.fetchAllOrderFromWoocommerce
-);
+// router.get(
+//   "/fetchAllOrderFromWoocommerceTest",
+//   testController.fetchAllOrderFromWoocommerce
+// );
 router.get("/fetchAllNewOrder", orderController.fetchAllNewOrder);
-router.post("/createBill", orderController.fetchProductBySku);
+router.post("/createBill", orderController.processBill);
 // router.delete("/delete/:id", locationController.deleteProductFromLocation);
 
 module.exports = router;
