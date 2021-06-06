@@ -73,12 +73,13 @@ const createNewProduct = asyncHandler(async (req, res, next) => {
     createdProduct = await Product.create({
       product_en_name,
       product_en_desc,
-      image_url: "http://node.morevar.com/" + file.path,
+      image_url: "http://localhost:5000/" + file.path,
       product_barcode,
       product_sku,
       model_number,
     });
   } catch (err) {
+    console.log(err);
     return res.status(500).json(err);
   }
 
@@ -87,7 +88,7 @@ const createNewProduct = asyncHandler(async (req, res, next) => {
 
 const updateProduct = asyncHandler(async (req, res, next) => {
   const productId = req.params.id;
-  console.log(req.body);
+  console.log(productId);
   let existiedProduct;
   try {
     existiedProduct = await Product.findByPk(productId);
@@ -98,26 +99,20 @@ const updateProduct = asyncHandler(async (req, res, next) => {
     return res.status(500).json(error);
   }
   const {
-    product_ar_name,
     product_en_name,
     product_en_desc,
-    product_ar_desc,
     product_barcode,
     product_sku,
-    quantity,
     model_number,
   } = req.body;
   let updatedProduct;
   try {
     updatedProduct = await existiedProduct.update({
-      product_ar_name: product_ar_name || existiedProduct.product_ar_name,
-      product_en_name: product_en_name || existiedProduct.product_en_name,
-      product_en_desc: product_en_desc || existiedProduct.product_en_desc,
-      product_ar_desc: product_ar_desc || existiedProduct.product_ar_desc,
-      product_barcode: product_barcode || existiedProduct.product_barcode,
-      product_sku: product_sku || existiedProduct.product_sku,
-      quantity: quantity || existiedProduct.quantity,
-      model_number: model_number || existiedProduct.model_number,
+      product_en_name: product_en_name,
+      product_en_desc: product_en_desc,
+      product_barcode: product_barcode,
+      product_sku: product_sku,
+      model_number: model_number,
     });
     return res.status(201).json(updatedProduct);
   } catch (err) {

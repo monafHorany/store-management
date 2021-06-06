@@ -5,18 +5,16 @@ const { protect, admin } = require("../middleware/authMiddleware");
 
 const fileUpload = require("../middleware/file-upload");
 
+router.post("/update/:id", productController.updateProduct);
 router.get("/", productController.fetchAllProducts);
 router.get("/printReport", productController.productReport);
 router.get("/importCsv", productController.importCsv);
-router.get("/:standId", productController.fetchAllProductsByStandId);
 router.post(
   "/create",
   fileUpload.single("image_url"),
   productController.createNewProduct
 );
-router.post("/update/:id", productController.updateProduct);
+router.get("/:standId", productController.fetchAllProductsByStandId);
 // router.delete("/delete/:id", protect, admin, productController.deleteProduct);
 
 module.exports = router;
-
-
