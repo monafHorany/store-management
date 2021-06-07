@@ -14,19 +14,19 @@ const OrderItem = sequelize.define("order_item", {
   },
   item_sku: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   item_price: {
     type: DataTypes.DOUBLE,
-    allowNull: false,
+    allowNull: true,
   },
   item_quantity: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
   },
   total: {
     type: DataTypes.DOUBLE,
-    allowNull: false,
+    allowNull: true,
   },
 });
 

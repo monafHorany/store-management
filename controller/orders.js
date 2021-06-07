@@ -24,6 +24,10 @@ const WooCommerce = new WooCommerceRestApi({
 // });
 
 const fetchOrderById = asyncHandler(async (req, res, next) => {
+  // console.log("called");
+  // const { data } = await WooCommerce.get(`orders/${req.params.orderId}`);
+
+  // return res.json(data);
   let order;
   try {
     order = await Order.findOne({
@@ -134,25 +138,17 @@ const fetchAllOrderFromWoocommerce = asyncHandler(async (req, res, next) => {
           );
           for (k = 0; k < woo_order.line_items.length; k++) {
             const orderItem = woo_order.line_items[k];
-            if (
-              orderItem.name &&
-              orderItem.sku &&
-              orderItem.price &&
-              orderItem.quantity &&
-              orderItem.total
-            ) {
-              await OrderItem.create(
-                {
-                  item_name: orderItem.name,
-                  item_sku: orderItem.sku,
-                  item_price: orderItem.price,
-                  item_quantity: orderItem.quantity,
-                  total: orderItem.total,
-                  orderId: createdOrder.id,
-                },
-                { transaction: t }
-              );
-            }
+            await OrderItem.create(
+              {
+                item_name: orderItem.name,
+                item_sku: orderItem.sku,
+                item_price: orderItem.price,
+                item_quantity: orderItem.quantity,
+                total: orderItem.total,
+                orderId: createdOrder.id,
+              },
+              { transaction: t }
+            );
           }
         });
       } catch (err) {
