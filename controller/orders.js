@@ -25,7 +25,7 @@ const WooCommerce = new WooCommerceRestApi({
 
 const fetchOrderById = asyncHandler(async (req, res, next) => {
   // console.log("called");
-  // const { data } = await WooCommerce.get(`orders/${req.params.orderId}`);
+  // const { data } = await WooCommerce.get(`orders`);
 
   // return res.json(data);
   let order;
@@ -133,6 +133,12 @@ const fetchAllOrderFromWoocommerce = asyncHandler(async (req, res, next) => {
               total: woo_order.total,
               payment_method: woo_order.payment_method_title,
               woo_order_id: woo_order.id,
+              is_bundled:
+                woo_order.line_items[0] &&
+                woo_order.line_items[0].meta_data[0] &&
+                woo_order.line_items[0].meta_data[0].key === "_bundled_items"
+                  ? true
+                  : false,
             },
             { transaction: t }
           );

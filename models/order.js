@@ -57,9 +57,10 @@ const Order = sequelize.define("order", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  note: {
-    type: DataTypes.TEXT,
-    allowNull: true,
+  is_bundled: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
   },
 });
 
