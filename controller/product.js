@@ -240,7 +240,7 @@ const importCsv = asyncHandler(async (req, res, next) => {
           .split("\\n")
           .join(""),
         image_url: jsonArray[i].Images.split(",")[0],
-        product_barcode: null,
+        product_barcode: jsonArray[i].SKU,
         product_sku: jsonArray[i].SKU,
         model_number: null,
       });

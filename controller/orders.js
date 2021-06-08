@@ -3,6 +3,7 @@ const asyncHandler = require("express-async-handler");
 const moment = require("moment");
 const fs = require("fs");
 const Order = require("../models/order");
+const Bill = require("../models/bill");
 const Product = require("../models/products");
 const Stand = require("../models/stands");
 const path = require("path");
@@ -24,10 +25,6 @@ const WooCommerce = new WooCommerceRestApi({
 // });
 
 const fetchOrderById = asyncHandler(async (req, res, next) => {
-  // console.log("called");
-  // const { data } = await WooCommerce.get(`orders`);
-
-  // return res.json(data);
   let order;
   try {
     order = await Order.findOne({
@@ -217,16 +214,16 @@ const deleteOrder = asyncHandler(async (req, res, next) => {
   return res.status(201).json("Order deleted successfully");
 });
 const processBill = asyncHandler(async (req, res, next) => {
-  const orderItems = req.body;
-  console.log(orderItems);
+  const order = req.body;
+  console.log(order);
   let message = "";
   let product;
-  if (orderItems.order_items.length <= 0) {
+  if (order.order_items.order_items.length <= 0) {
     return res.status(404).json("order can't be empty");
   }
-  if (orderItems.isBundle) {
-    for (let index = 1; index < orderItems.order_items.length; index++) {
-      const item = orderItems.order_items[index];
+  if (order.order_items.is_bundled) {
+    for (let index = 1; index < order.order_items.order_items.length; index++) {
+      const item = order.order_items.order_items[index];
       product = await Product.findOne({
         where: {
           product_sku: item.item_sku,
@@ -300,8 +297,8 @@ const processBill = asyncHandler(async (req, res, next) => {
       }
     }
   } else {
-    for (let index = 0; index < orderItems.order_items.length; index++) {
-      const item = orderItems.order_items[index];
+    for (let index = 0; index < order.order_items.order_items.length; index++) {
+      const item = order.order_items.order_items[index];
       product = await Product.findOne({
         where: {
           product_sku: item.item_sku,
@@ -374,6 +371,17 @@ const processBill = asyncHandler(async (req, res, next) => {
         throw new Error(error);
       }
     }
+  }
+  try {
+    await Bill.create({
+      order_owner: order.order_items.order_owner_name,
+      order_total: order.order_items.total,
+      woo_order_id: order.order_items.woo_order_id,
+      note: message,
+      orderId: order.order_items.woo_order_id,
+    });
+  } catch (error) {
+    throw new Error(error);
   }
   return res.status(201).json(message);
 });

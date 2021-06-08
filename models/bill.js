@@ -8,7 +8,7 @@ const Bill = sequelize.define("bill", {
     autoIncrement: true,
   },
   order_owner: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING,
     allowNull: false,
   },
   order_total: {
