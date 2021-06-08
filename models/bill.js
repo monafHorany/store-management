@@ -19,6 +19,10 @@ const Bill = sequelize.define("bill", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  note: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  },
 });
 
 module.exports = Bill;

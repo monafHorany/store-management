@@ -144,17 +144,25 @@ const fetchAllOrderFromWoocommerce = asyncHandler(async (req, res, next) => {
           );
           for (k = 0; k < woo_order.line_items.length; k++) {
             const orderItem = woo_order.line_items[k];
-            await OrderItem.create(
-              {
-                item_name: orderItem.name,
-                item_sku: orderItem.sku,
-                item_price: orderItem.price,
-                item_quantity: orderItem.quantity,
-                total: orderItem.total,
-                orderId: createdOrder.id,
-              },
-              { transaction: t }
-            );
+            if (orderItem && orderItem.meta_data.length !== 0) {
+              await OrderItem.create(
+                {
+                  item_name: orderItem.name,
+                  item_sku: orderItem.sku,
+                  item_price: orderItem.price,
+                  item_quantity:
+                    woo_order.line_items[0] &&
+                    woo_order.line_items[0].meta_data[0] &&
+                    woo_order.line_items[0].meta_data[0].key ===
+                      "_bundled_items"
+                      ? orderItem.quantity
+                      : orderItem.meta_data[0].value,
+                  total: orderItem.total,
+                  orderId: createdOrder.id,
+                },
+                { transaction: t }
+              );
+            }
           }
         });
       } catch (err) {
@@ -210,43 +218,39 @@ const deleteOrder = asyncHandler(async (req, res, next) => {
 });
 const processBill = asyncHandler(async (req, res, next) => {
   const orderItems = req.body;
+  console.log(orderItems);
   let message = "";
   let product;
-  if (orderItems.length <= 0) {
-    return;
+  if (orderItems.order_items.length <= 0) {
+    return res.status(404).json("order can't be empty");
   }
-  for (let index = 0; index < orderItems.length; index++) {
-    const item = orderItems[index];
-    product = await Product.findOne({
-      where: {
-        product_sku: item.item_sku,
-      },
-      include: Stand,
-    });
-    if (!product.stands || product.stands.length <= 0) {
-      return res
-        .status(404)
-        .json("some product of this order isn't exist at any location");
-    }
-  }
-  for (let index = 0; index < orderItems.length; index++) {
-    const item = orderItems[index];
-    try {
-    } catch (error) {
-      throw new Error(error);
-    }
-
-    try {
-      for (let index2 = 0; index2 < product.stands.length; index2++) {
-        const stand = product.stands[index2];
-        if (stand.location.quantity >= item.item_quantity) {
-          try {
-            await Location.update(
-              { quantity: stand.location.quantity - item.item_quantity },
-              { where: { id: stand.location.id } }
-            );
-            const standDetail = await Stand.findByPk(stand.id);
-            message += `<div>
+  if (orderItems.isBundle) {
+    for (let index = 1; index < orderItems.order_items.length; index++) {
+      const item = orderItems.order_items[index];
+      product = await Product.findOne({
+        where: {
+          product_sku: item.item_sku,
+        },
+        include: Stand,
+      });
+      if (!product.stands || product.stands.length <= 0) {
+        return res
+          .status(404)
+          .json("some product of this order isn't exist at any location");
+      }
+      try {
+        for (let index2 = 0; index2 < product.stands.length; index2++) {
+          const stand = product.stands[index2];
+          if (stand.location.quantity >= item.item_quantity) {
+            try {
+              await Location.update(
+                { quantity: stand.location.quantity - item.item_quantity },
+                { where: { id: stand.location.id } }
+              );
+              const standDetail = await Stand.findByPk(stand.id);
+              message += `<div>
+              <ul>
+              <li>
               ${
                 item.item_quantity > 1
                   ? item.item_quantity +
@@ -264,58 +268,114 @@ const processBill = asyncHandler(async (req, res, next) => {
                     " in stand #" +
                     standDetail.stand_number
               }
-              </div>`;
-          } catch (error) {
-            throw new Error(error);
-          }
-        } else if (stand.location.quantity === 0) {
-          try {
-            await Location.destroy({
-              where: {
-                id: stand.location.id,
-              },
-            });
+              </li>
+              </ul>
+                  </div>`;
+            } catch (error) {
+              throw new Error(error);
+            }
+          } else if (stand.location.quantity === 0) {
+            try {
+              await Location.destroy({
+                where: {
+                  id: stand.location.id,
+                },
+              });
+              return res
+                .status(400)
+                .json("Please Check The quantity in The Stands");
+            } catch (error) {
+              throw new Error(error);
+            }
+          } else {
             return res
-              .status(400)
-              .json("Please Check The quantity in The Stands");
-          } catch (error) {
-            throw new Error(error);
+              .status(404)
+              .json(
+                "single stand must have the whole quantity for each order item to be pulled"
+              );
           }
-        } else {
-          return res
-            .status(404)
-            .json(
-              "single stand must have the whole quantity for each order item to be pulled"
-            );
         }
+      } catch (error) {
+        throw new Error(error);
       }
-    } catch (error) {
-      throw new Error(error);
     }
-
-    // if (product.stands.length > 1) {
-    //   for (let index2 = 0; index2 < product.stands.length; index2++) {
-    //     const stand = product.stands[index2];
-    //     if(stand.location.quantity < item.item_quantity){
-    //       const subtraction = item.item_quantity - stand.location.quantity;
-
-    //     }
-    //     await Location.update({
-    //       quantity: stand.location.quantity - item.item_quantity
-    //     })
-    //   }
-    // }
-    // if (
-    //   item.item_quantity >
-    //   product.stands.reduce(
-    //     (acc, currentValue) => acc + currentValue.location.quantity,
-    //     0
-    //   )
-    // )
+  } else {
+    for (let index = 0; index < orderItems.order_items.length; index++) {
+      const item = orderItems.order_items[index];
+      product = await Product.findOne({
+        where: {
+          product_sku: item.item_sku,
+        },
+        include: Stand,
+      });
+      if (!product.stands || product.stands.length <= 0) {
+        return res
+          .status(404)
+          .json("some product of this order isn't exist at any location");
+      }
+      try {
+        for (let index2 = 0; index2 < product.stands.length; index2++) {
+          const stand = product.stands[index2];
+          if (stand.location.quantity >= item.item_quantity) {
+            try {
+              await Location.update(
+                { quantity: stand.location.quantity - item.item_quantity },
+                { where: { id: stand.location.id } }
+              );
+              const standDetail = await Stand.findByPk(stand.id);
+              message += `<div>
+                <ul>
+                <li>
+                ${
+                  item.item_quantity > 1
+                    ? item.item_quantity +
+                      " peices of " +
+                      item.item_name +
+                      " are take from zone " +
+                      stand.location.zone_Symbol +
+                      " in stand #" +
+                      standDetail.stand_number
+                    : item.item_quantity +
+                      " peice of " +
+                      item.item_name +
+                      " is take from zone " +
+                      stand.location.zone_Symbol +
+                      " in stand #" +
+                      standDetail.stand_number
+                }
+                </li>
+                </ul>
+                  </div>`;
+            } catch (error) {
+              throw new Error(error);
+            }
+          } else if (stand.location.quantity === 0) {
+            try {
+              await Location.destroy({
+                where: {
+                  id: stand.location.id,
+                },
+              });
+              return res
+                .status(400)
+                .json("Please Check The quantity in The Stands");
+            } catch (error) {
+              throw new Error(error);
+            }
+          } else {
+            return res
+              .status(404)
+              .json(
+                "single stand must have the whole quantity for each order item to be pulled"
+              );
+          }
+        }
+      } catch (error) {
+        throw new Error(error);
+      }
+    }
   }
   return res.status(201).json(message);
-  // console.log(orderItems);
-  // return res.json(product);
 });
 
 exports.fetchAllNewOrder = fetchAllNewOrder;
