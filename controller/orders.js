@@ -224,6 +224,98 @@ const processBill = asyncHandler(async (req, res, next) => {
   if (order.order_items.is_bundled) {
     for (let index = 1; index < order.order_items.order_items.length; index++) {
       const item = order.order_items.order_items[index];
+      try {
+        product = await Product.findOne({
+          where: {
+            product_sku: item.item_sku,
+          },
+          include: Stand,
+        });
+      } catch (error) {
+        throw new Error(error);
+      }
+      if (!product || !product.stands || product.stands.length <= 0) {
+        return res
+          .status(404)
+          .json("some product of this order isn't exist at any location");
+      }
+      for (let index2 = 0; index2 < product.stands.length; index2++) {
+        const stand = product.stands[index2];
+        if (stand.location.quantity === 0) {
+          try {
+            await Location.destroy({
+              where: {
+                id: stand.location.id,
+              },
+            });
+            return res
+              .status(400)
+              .json("Please Check The quantity in The Stands");
+          } catch (error) {
+            throw new Error(error);
+          }
+        }
+      }
+
+      const found = product.stands.some(
+        (stand) => stand.location.quantity >= item.item_quantity
+      );
+      if (!found) {
+        return res
+          .status(404)
+          .json("please check all order's product quantity");
+      }
+    }
+  } else {
+    for (let index = 0; index < order.order_items.order_items.length; index++) {
+      const item = order.order_items.order_items[index];
+      try {
+        product = await Product.findOne({
+          where: {
+            product_sku: item.item_sku,
+          },
+          include: Stand,
+        });
+      } catch (error) {
+        throw new Error(error);
+      }
+      if (!product || !product.stands || product.stands.length <= 0) {
+        return res
+          .status(404)
+          .json("some product of this order isn't exist at any location");
+      }
+      for (let index2 = 0; index2 < product.stands.length; index2++) {
+        const stand = product.stands[index2];
+        if (stand.location.quantity === 0) {
+          try {
+            await Location.destroy({
+              where: {
+                id: stand.location.id,
+              },
+            });
+            return res
+              .status(400)
+              .json("Please Check The quantity in The Stands");
+          } catch (error) {
+            throw new Error(error);
+          }
+        }
+      }
+      const found = product.stands.some(
+        (stand) => stand.location.quantity >= item.item_quantity
+      );
+      if (!found) {
+        return res
+          .status(404)
+          .json("please check all order's product quantity");
+      }
+    }
+  }
+
+  if (order.order_items.is_bundled) {
+    for (let index = 1; index < order.order_items.order_items.length; index++) {
+      const item = order.order_items.order_items[index];
+
       product = await Product.findOne({
         where: {
           product_sku: item.item_sku,
@@ -253,14 +345,14 @@ const processBill = asyncHandler(async (req, res, next) => {
                   ? item.item_quantity +
                     " peices of " +
                     item.item_name +
-                    " are take from zone " +
+                    " are taken from zone " +
                     stand.location.zone_Symbol +
                     " in stand #" +
                     standDetail.stand_number
                   : item.item_quantity +
                     " peice of " +
                     item.item_name +
-                    " is take from zone " +
+                    " is taken from zone " +
                     stand.location.zone_Symbol +
                     " in stand #" +
                     standDetail.stand_number
@@ -328,14 +420,14 @@ const processBill = asyncHandler(async (req, res, next) => {
                     ? item.item_quantity +
                       " peices of " +
                       item.item_name +
-                      " are take from zone " +
+                      " are taken from zone " +
                       stand.location.zone_Symbol +
                       " in stand #" +
                       standDetail.stand_number
                     : item.item_quantity +
                       " peice of " +
                       item.item_name +
-                      " is take from zone " +
+                      " is taken from zone " +
                       stand.location.zone_Symbol +
                       " in stand #" +
                       standDetail.stand_number
@@ -378,7 +470,7 @@ const processBill = asyncHandler(async (req, res, next) => {
       order_total: order.order_items.total,
       woo_order_id: order.order_items.woo_order_id,
       note: message,
-      orderId: order.order_items.woo_order_id,
+      orderId: order.order_items.id,
     });
   } catch (error) {
     throw new Error(error);

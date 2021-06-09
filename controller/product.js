@@ -229,7 +229,7 @@ const productReport = asyncHandler(async (req, res, next) => {
 const csv = require("csvtojson");
 const importCsv = asyncHandler(async (req, res, next) => {
   const jsonArray = await csv().fromFile(
-    "wc-product-export-31-5-2021-1622449002546.csv"
+    "wc-product-export-9-6-2021-1623239072126.csv"
   );
   for (let i = 0; i < jsonArray.length; i++) {
     // console.log(typeof jsonArray[i]["Published"]);

@@ -1,5 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../utils/databaseConnection");
+const moment = require("moment");
+
 const Bill = sequelize.define("bill", {
   id: {
     type: DataTypes.INTEGER,
@@ -10,6 +12,14 @@ const Bill = sequelize.define("bill", {
   order_owner: {
     type: DataTypes.STRING,
     allowNull: false,
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    get() {
+      return moment(this.getDataValue("createdAt")).format(
+        "DD/MM/YYYY h:mm:ss"
+      );
+    },
   },
   order_total: {
     type: DataTypes.INTEGER,
