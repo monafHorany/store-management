@@ -1,16 +1,29 @@
 const express = require("express");
 const router = express.Router();
 const productController = require("../controller/product");
-const { protect, admin } = require("../middleware/authMiddleware");
+const {
+  protect,
+  admin,
+  adminANDeditor,
+} = require("../middleware/authMiddleware");
 
 const fileUpload = require("../middleware/file-upload");
 
-router.post("/update/:id", productController.updateProduct);
+router.post(
+  "/update/:id",
+  protect,
+  admin,
+  adminANDeditor,
+  productController.updateProduct
+);
 router.get("/", productController.fetchAllProducts);
 router.get("/printReport", productController.productReport);
 router.get("/importCsv", productController.importCsv);
 router.post(
   "/create",
+  protect,
+  admin,
+  adminANDeditor,
   fileUpload.single("image_url"),
   productController.createNewProduct
 );

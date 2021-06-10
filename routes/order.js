@@ -1,19 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const orderController = require("../controller/orders");
-const testController = require("../controller/testing");
+const { protect, admin, adminANDeditor } = require("../middleware/authMiddleware");
+
 
 router.get(
   "/fetchAllOrderFromWoocommerce",
   orderController.fetchAllOrderFromWoocommerce
 );
 router.get("/order/:orderId", orderController.fetchOrderById);
-// router.get(
-//   "/fetchAllOrderFromWoocommerceTest",
-//   testController.fetchAllOrderFromWoocommerce
-// );
 router.get("/fetchAllNewOrder", orderController.fetchAllNewOrder);
-router.post("/createBill", orderController.processBill);
-// router.delete("/delete/:id", locationController.deleteProductFromLocation);
-
+router.post("/createBill", protect, admin, adminANDeditor, orderController.processBill);
 module.exports = router;

@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const { Op } = require("sequelize");
+const Product = require("../models/products");
 const Stand = require("../models/stands");
 
 const fetchAllStandsByZoneId = asyncHandler(async (req, res, next) => {
@@ -13,6 +14,17 @@ const fetchAllStandsByZoneId = asyncHandler(async (req, res, next) => {
     return res.status(200).json([]);
   }
   return res.status(200).json(existingStands);
+});
+
+const getStandById = asyncHandler(async (req, res, next) => {
+  const id = req.params.id;
+  let stand;
+  try {
+    stand = await Stand.findByPk(id, { include: Product });
+  } catch (error) {
+    throw new Error(error);
+  }
+  return res.status(200).json(stand);
 });
 const fetchAllStands = asyncHandler(async (req, res, next) => {
   let existingStands;
@@ -101,6 +113,7 @@ const deleteStand = asyncHandler(async (req, res, next) => {
 
 exports.fetchAllStandsByZoneId = fetchAllStandsByZoneId;
 exports.fetchAllStands = fetchAllStands;
+exports.getStandById = getStandById;
 exports.createNewStand = createNewStand;
 exports.updateStand = updateStand;
 exports.deleteStand = deleteStand;

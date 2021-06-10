@@ -36,8 +36,11 @@ const admin = asyncHandler(async (req, res, next) => {
     res.status(401).json("Not authorized as an admin");
   }
 });
-const editor = asyncHandler(async (req, res, next) => {
-  if (req.user && req.user.role === "editor") {
+const adminANDeditor = asyncHandler(async (req, res, next) => {
+  if (
+    (req.user && req.user.role === "super user") ||
+    (req.user && req.user.role === "editor")
+  ) {
     next();
   } else {
     res.status(401).json("Not authorized as an editor");
@@ -46,4 +49,4 @@ const editor = asyncHandler(async (req, res, next) => {
 
 exports.protect = protect;
 exports.admin = admin;
-exports.editor = editor;
+exports.adminANDeditor = adminANDeditor;

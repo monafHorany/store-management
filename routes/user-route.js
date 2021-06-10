@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../controller/user");
-const { protect, admin } = require("../middleware/authMiddleware");
+const { protect, admin, adminANDeditor } = require("../middleware/authMiddleware");
 
 router.get("/", userController.fetchAllUsers);
 router.post("/login", userController.login);

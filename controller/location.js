@@ -41,9 +41,9 @@ const insertProductInLocation = asyncHandler(async (req, res) => {
     });
   }
 });
-const editProducLocation = asyncHandler(async (req, res) => {
+const editProducLocation = asyncHandler(async (req, res, next) => {
   const { quantity } = req.body;
-
+  console.log(quantity);
   let location;
   try {
     location = await Location.findByPk(req.params.id);
@@ -52,7 +52,7 @@ const editProducLocation = asyncHandler(async (req, res) => {
   }
   try {
     location.update({
-      quantity: quantity,
+      quantity: +quantity,
     });
   } catch (error) {
     throw new Error(error);
