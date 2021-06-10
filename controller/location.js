@@ -36,12 +36,28 @@ const insertProductInLocation = asyncHandler(async (req, res) => {
       where: { id: standId },
       include: Product,
     });
-    return res
-      .status(200)
-      .json({
-        messsage: `Added To Zone ${existingZone.zone_symbol} in Stand ${result.stand_number}`,
-      });
+    return res.status(200).json({
+      messsage: `Added To Zone ${existingZone.zone_symbol} in Stand ${result.stand_number}`,
+    });
   }
+});
+const editProducLocation = asyncHandler(async (req, res) => {
+  const { quantity } = req.body;
+
+  let location;
+  try {
+    location = await Location.findByPk(req.params.id);
+  } catch (error) {
+    throw new Error(error);
+  }
+  try {
+    location.update({
+      quantity: quantity,
+    });
+  } catch (error) {
+    throw new Error(error);
+  }
+  return res.status(201).json("quantity updated");
 });
 
 const deleteProductFromLocation = asyncHandler(async (req, res) => {
@@ -55,4 +71,5 @@ const deleteProductFromLocation = asyncHandler(async (req, res) => {
 });
 
 exports.insertProductInLocation = insertProductInLocation;
+exports.editProducLocation = editProducLocation;
 exports.deleteProductFromLocation = deleteProductFromLocation;
