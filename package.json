@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
-  "scripts": {}
+  "scripts": {
+    "start": "nodemon app.js"
+  }
   ,
   "repository": {
     "type": "git",
