@@ -68,12 +68,13 @@ const createNewProduct = asyncHandler(async (req, res, next) => {
   if (existingProducts) {
     return res.status(422).json({ message: "Product exists already." });
   }
+  http://194.233.161.141/
   let createdProduct;
   try {
     createdProduct = await Product.create({
       product_en_name,
       product_en_desc,
-      image_url: "http://localhost:5000/" + file.path,
+      image_url: "http://194.233.161.141/" + file.path,
       product_barcode,
       product_sku,
       model_number,
