@@ -14,11 +14,8 @@ const Zone = sequelize.define("zone", {
   },
   zone_capacity: {
     type: DataTypes.INTEGER,
-    allowNull: false
-  }
+    allowNull: false,
+  },
 });
 
-
 module.exports = Zone;
-
-

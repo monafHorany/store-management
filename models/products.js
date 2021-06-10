@@ -13,7 +13,7 @@ const Product = sequelize.define("product", {
     allowNull: false,
   },
   product_en_desc: {
-    type: DataTypes.STRING(500),
+    type: DataTypes.TEXT,
     allowNull: false,
   },
   image_url: {
@@ -21,15 +21,15 @@ const Product = sequelize.define("product", {
     allowNull: false,
   },
   product_barcode: {
-    type: DataTypes.STRING(500),
+    type: DataTypes.STRING,
     allowNull: true,
   },
   product_sku: {
-    type: DataTypes.STRING(500),
+    type: DataTypes.STRING,
     allowNull: true,
   },
   model_number: {
-    type: DataTypes.STRING(500),
+    type: DataTypes.STRING,
     allowNull: true,
   },
 });
