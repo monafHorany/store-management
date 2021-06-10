@@ -68,7 +68,6 @@ const createNewProduct = asyncHandler(async (req, res, next) => {
   if (existingProducts) {
     return res.status(422).json({ message: "Product exists already." });
   }
-  http://194.233.161.141/
   let createdProduct;
   try {
     createdProduct = await Product.create({
