@@ -180,7 +180,7 @@ const updateOrder = asyncHandler(async (req, res, next) => {
   try {
     existedOrder = await Order.findByPk(req.params.id);
     if (!existedOrder) {
-      return res.status(404).json("no Order with the given id");
+      return res.status(400).json("no Order with the given id");
     }
   } catch (error) {
     return res.status(500).json(error);
@@ -219,7 +219,7 @@ const processBill = asyncHandler(async (req, res, next) => {
   let message = "";
   let product;
   if (order.order_items.order_items.length <= 0) {
-    return res.status(404).json("order can't be empty");
+    return res.status(400).json("order can't be empty");
   }
   if (order.order_items.is_bundled) {
     for (let index = 1; index < order.order_items.order_items.length; index++) {
@@ -236,7 +236,7 @@ const processBill = asyncHandler(async (req, res, next) => {
       }
       if (!product || !product.stands || product.stands.length <= 0) {
         return res
-          .status(404)
+          .status(400)
           .json("some product of this order isn't exist at any location");
       }
       for (let index2 = 0; index2 < product.stands.length; index2++) {
@@ -262,7 +262,7 @@ const processBill = asyncHandler(async (req, res, next) => {
       );
       if (!found) {
         return res
-          .status(404)
+          .status(400)
           .json("please check all order's product quantity");
       }
     }
@@ -281,7 +281,7 @@ const processBill = asyncHandler(async (req, res, next) => {
       }
       if (!product || !product.stands || product.stands.length <= 0) {
         return res
-          .status(404)
+          .status(400)
           .json("some product of this order isn't exist at any location");
       }
       for (let index2 = 0; index2 < product.stands.length; index2++) {
@@ -306,7 +306,7 @@ const processBill = asyncHandler(async (req, res, next) => {
       );
       if (!found) {
         return res
-          .status(404)
+          .status(400)
           .json("please check all order's product quantity");
       }
     }
@@ -324,7 +324,7 @@ const processBill = asyncHandler(async (req, res, next) => {
       });
       if (!product.stands || product.stands.length <= 0) {
         return res
-          .status(404)
+          .status(400)
           .json("some product of this order isn't exist at any location");
       }
       try {
@@ -378,7 +378,7 @@ const processBill = asyncHandler(async (req, res, next) => {
             }
           } else {
             return res
-              .status(404)
+              .status(400)
               .json(
                 "single stand must have the whole quantity for each order item to be pulled"
               );
@@ -399,7 +399,7 @@ const processBill = asyncHandler(async (req, res, next) => {
       });
       if (!product.stands || product.stands.length <= 0) {
         return res
-          .status(404)
+          .status(400)
           .json("some product of this order isn't exist at any location");
       }
       try {
@@ -453,7 +453,7 @@ const processBill = asyncHandler(async (req, res, next) => {
             }
           } else {
             return res
-              .status(404)
+              .status(400)
               .json(
                 "single stand must have the whole quantity for each order item to be pulled"
               );

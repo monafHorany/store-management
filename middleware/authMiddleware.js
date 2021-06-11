@@ -18,14 +18,12 @@ const protect = asyncHandler(async (req, res, next) => {
       req.user = await User.findByPk(decoded.userId);
       next();
     } catch (error) {
-      res.status(401);
-      throw new Error("Not authorized, token failed");
+      res.status(401).json("Not authorized, token failed, Logging you out");
     }
   }
 
   if (!token) {
-    res.status(401);
-    throw new Error("Not authorized, no token");
+    res.status(401).json("Not authorized, no token, Logging you out");
   }
 });
 
@@ -33,7 +31,7 @@ const admin = asyncHandler(async (req, res, next) => {
   if (req.user && req.user.role === "super user") {
     next();
   } else {
-    res.status(401).json("Not authorized as an admin");
+    res.status(401).json("Not authorized as an admin, Logging you out");
   }
 });
 const adminANDeditor = asyncHandler(async (req, res, next) => {
@@ -43,7 +41,7 @@ const adminANDeditor = asyncHandler(async (req, res, next) => {
   ) {
     next();
   } else {
-    res.status(401).json("Not authorized as an editor");
+    res.status(401).json("Not authorized as an editor, Logging you out");
   }
 });
 
