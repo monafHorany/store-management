@@ -66,112 +66,114 @@ const fetchProductBySku = asyncHandler(async (req, res, next) => {
 });
 
 const fetchAllOrderFromWoocommerce = asyncHandler(async (req, res, next) => {
-  // const orderIds = [
-  //   47172, 48325, 48374, 50490, 51169, 51159, 51159, 51074, 51718, 51714, 51534,
-  //   51530, 51387, 51371,
-  // ];
-  // const update = {
-  //   status: "cancelled",
-  // };
-  // orderIds.map(async (id) => {
-  //   const { data } = await WooCommerce.put(`orders/${id}`, update);
+  const orderIds = [
+    52741, 52735, 52776, 52776, 52989, 50455, 50983, 51028, 51108,
+  ];
+  const update = {
+    status: "cancelled",
+  };
+  orderIds.map(async (id, index) => {
+    const { data } = await WooCommerce.put(`orders/${id}`, update);
+    if (index === orderIds.length - 1) {
+      return res.json("done");
+    }
+  });
+  // var threeMonthsAgo = moment().subtract(2, "weeks");
+  // await sequelize.query("SET FOREIGN_KEY_CHECKS = 0");
+  // await OrderItem.destroy({
+  //   truncate: true,
   // });
-  var threeMonthsAgo = moment().subtract(1, "days");
-  await sequelize.query("SET FOREIGN_KEY_CHECKS = 0");
-  await OrderItem.destroy({
-    truncate: true,
-  });
-  await Order.destroy({
-    truncate: true,
-  });
-  let page_num = 1;
-  while (true) {
-    const { data } = await WooCommerce.get(
-      `orders?page=${page_num}&per_page=100&after=${new Date(
-        threeMonthsAgo.format()
-      ).toISOString()}`
-    );
-    let createdOrder;
-    for (let j = 0; j < data.length; j++) {
-      const woo_order = data[j];
-      try {
-        const result = await sequelize.transaction(async (t) => {
-          createdOrder = await Order.create(
-            {
-              order_owner_name:
-                woo_order.billing.first_name +
-                " " +
-                woo_order.billing.last_name,
-              order_owner_email: woo_order.billing.email,
-              order_owner_phone_number: woo_order.billing.phone,
-              order_created_date: woo_order.date_created,
-              order_status: woo_order.status,
-              billing_address:
-                woo_order.billing.address_1 +
-                " " +
-                woo_order.billing.address_2 +
-                " " +
-                woo_order.billing.city +
-                " " +
-                woo_order.billing.state +
-                " " +
-                woo_order.billing.postcode +
-                " " +
-                woo_order.billing.country,
-              shipping_address:
-                woo_order.shipping.address_1 +
-                " " +
-                woo_order.shipping.address_2 +
-                " " +
-                woo_order.shipping.city +
-                " " +
-                woo_order.shipping.country,
-              currency: woo_order.currency,
-              total: woo_order.total,
-              payment_method: woo_order.payment_method_title,
-              woo_order_id: woo_order.id,
-              is_bundled:
-                woo_order.line_items[0] &&
-                woo_order.line_items[0].meta_data[0] &&
-                woo_order.line_items[0].meta_data[0].key === "_bundled_items"
-                  ? true
-                  : false,
-            },
-            { transaction: t }
-          );
-          for (k = 0; k < woo_order.line_items.length; k++) {
-            const orderItem = woo_order.line_items[k];
-            if (orderItem && orderItem.meta_data.length !== 0) {
-              await OrderItem.create(
-                {
-                  item_name: orderItem.name,
-                  item_sku: orderItem.sku,
-                  item_price: orderItem.price,
-                  item_quantity:
-                    woo_order.line_items[0] &&
-                    woo_order.line_items[0].meta_data[0] &&
-                    woo_order.line_items[0].meta_data[0].key ===
-                      "_bundled_items"
-                      ? orderItem.quantity
-                      : orderItem.meta_data[0].value,
-                  total: orderItem.total,
-                  orderId: createdOrder.id,
-                },
-                { transaction: t }
-              );
-            }
-          }
-        });
-      } catch (err) {
-        throw new Error(err);
-      }
-    }
-    page_num++;
-    if (data.length === 0) {
-      console.log(data.length);
-      return res.status(200).json(data);
-    }
-  }
+  // await Order.destroy({
+  //   truncate: true,
+  // });
+  // let page_num = 1;
+  // while (true) {
+  //   const { data } = await WooCommerce.get(
+  //     `orders?page=${page_num}&per_page=100&after=${new Date(
+  //       threeMonthsAgo.format()
+  //     ).toISOString()}`
+  //   );
+  //   let createdOrder;
+  //   for (let j = 0; j < data.length; j++) {
+  //     const woo_order = data[j];
+  //     try {
+  //       const result = await sequelize.transaction(async (t) => {
+  //         createdOrder = await Order.create(
+  //           {
+  //             order_owner_name:
+  //               woo_order.billing.first_name +
+  //               " " +
+  //               woo_order.billing.last_name,
+  //             order_owner_email: woo_order.billing.email,
+  //             order_owner_phone_number: woo_order.billing.phone,
+  //             order_created_date: woo_order.date_created,
+  //             order_status: woo_order.status,
+  //             billing_address:
+  //               woo_order.billing.address_1 +
+  //               " " +
+  //               woo_order.billing.address_2 +
+  //               " " +
+  //               woo_order.billing.city +
+  //               " " +
+  //               woo_order.billing.state +
+  //               " " +
+  //               woo_order.billing.postcode +
+  //               " " +
+  //               woo_order.billing.country,
+  //             shipping_address:
+  //               woo_order.shipping.address_1 +
+  //               " " +
+  //               woo_order.shipping.address_2 +
+  //               " " +
+  //               woo_order.shipping.city +
+  //               " " +
+  //               woo_order.shipping.country,
+  //             currency: woo_order.currency,
+  //             total: woo_order.total,
+  //             payment_method: woo_order.payment_method_title,
+  //             woo_order_id: woo_order.id,
+  //             is_bundled:
+  //               woo_order.line_items[0] &&
+  //               woo_order.line_items[0].meta_data[0] &&
+  //               woo_order.line_items[0].meta_data[0].key === "_bundled_items"
+  //                 ? true
+  //                 : false,
+  //           },
+  //           { transaction: t }
+  //         );
+  //         for (k = 0; k < woo_order.line_items.length; k++) {
+  //           const orderItem = woo_order.line_items[k];
+  //           if (orderItem && orderItem.meta_data.length !== 0) {
+  //             await OrderItem.create(
+  //               {
+  //                 item_name: orderItem.name,
+  //                 item_sku: orderItem.sku,
+  //                 item_price: orderItem.price,
+  //                 item_quantity:
+  //                   woo_order.line_items[0] &&
+  //                   woo_order.line_items[0].meta_data[0] &&
+  //                   woo_order.line_items[0].meta_data[0].key ===
+  //                     "_bundled_items"
+  //                     ? orderItem.quantity
+  //                     : orderItem.meta_data[0].value,
+  //                 total: orderItem.total,
+  //                 orderId: createdOrder.id,
+  //               },
+  //               { transaction: t }
+  //             );
+  //           }
+  //         }
+  //       });
+  //     } catch (err) {
+  //       throw new Error(err);
+  //     }
+  //   }
+  //   page_num++;
+  //   if (data.length === 0) {
+  //     console.log(data.length);
+  //     return res.status(200).json(data);
+  //   }
+  // }
   // return res.status(200).json(data);
 });
 
