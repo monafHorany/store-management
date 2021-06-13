@@ -28,6 +28,11 @@ const OrderItem = sequelize.define("order_item", {
     type: DataTypes.DOUBLE,
     allowNull: true,
   },
+  is_bundled_item: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
 });
 
 module.exports = OrderItem;

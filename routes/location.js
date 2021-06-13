@@ -10,7 +10,7 @@ const {
 router.post(
   "/insertProduct",
   protect,
-  admin,
+  adminANDeditor,
   locationController.insertProductInLocation
 );
 router.put("/edit/:id", protect, admin, locationController.editProducLocation);

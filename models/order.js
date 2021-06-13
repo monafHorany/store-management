@@ -57,11 +57,7 @@ const Order = sequelize.define("order", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  is_bundled: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-    defaultValue: false,
-  },
+  
 });
 
 module.exports = Order;

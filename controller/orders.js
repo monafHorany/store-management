@@ -17,12 +17,6 @@ const WooCommerce = new WooCommerceRestApi({
   consumerSecret: "cs_85a3dcb8a42ce7b2c4714bb1d6027b3196c8bc8e",
   version: "wc/v3",
 });
-// const WooCommerce = new WooCommerceRestApi({
-//   url: "http://172.105.249.132/",
-//   consumerKey: "ck_ed53259da480ec781071607da9a821e4f35a91a8",
-//   consumerSecret: "cs_da54315c1989c598785bcc09d59eaa110b8f3a27",
-//   version: "wc/v3",
-// });
 
 const fetchOrderById = asyncHandler(async (req, res, next) => {
   let order;
@@ -66,114 +60,120 @@ const fetchProductBySku = asyncHandler(async (req, res, next) => {
 });
 
 const fetchAllOrderFromWoocommerce = asyncHandler(async (req, res, next) => {
-  const orderIds = [
-    52741, 52735, 52776, 52776, 52989, 50455, 50983, 51028, 51108,
-  ];
-  const update = {
-    status: "cancelled",
-  };
-  orderIds.map(async (id, index) => {
-    const { data } = await WooCommerce.put(`orders/${id}`, update);
-    if (index === orderIds.length - 1) {
-      return res.json("done");
-    }
+  // const orderIds = [
+  //   52741, 52735, 52776, 52776, 52989, 50455, 50983, 51028, 51108,
+  // ];
+  // const update = {
+  //   status: "cancelled",
+  // };
+  // orderIds.map(async (id, index) => {
+  //   const { data } = await WooCommerce.put(`orders/${id}`, update);
+  //   if (index === orderIds.length - 1) {
+  //     return res.json("done");
+  //   }
+  // });
+  // const { data } = await WooCommerce.get(`orders/52242`);
+  var threeMonthsAgo = moment().subtract(2, "weeks");
+  await sequelize.query("SET FOREIGN_KEY_CHECKS = 0");
+  await OrderItem.destroy({
+    truncate: true,
   });
-  // var threeMonthsAgo = moment().subtract(2, "weeks");
-  // await sequelize.query("SET FOREIGN_KEY_CHECKS = 0");
-  // await OrderItem.destroy({
-  //   truncate: true,
-  // });
-  // await Order.destroy({
-  //   truncate: true,
-  // });
-  // let page_num = 1;
-  // while (true) {
-  //   const { data } = await WooCommerce.get(
-  //     `orders?page=${page_num}&per_page=100&after=${new Date(
-  //       threeMonthsAgo.format()
-  //     ).toISOString()}`
-  //   );
-  //   let createdOrder;
-  //   for (let j = 0; j < data.length; j++) {
-  //     const woo_order = data[j];
-  //     try {
-  //       const result = await sequelize.transaction(async (t) => {
-  //         createdOrder = await Order.create(
-  //           {
-  //             order_owner_name:
-  //               woo_order.billing.first_name +
-  //               " " +
-  //               woo_order.billing.last_name,
-  //             order_owner_email: woo_order.billing.email,
-  //             order_owner_phone_number: woo_order.billing.phone,
-  //             order_created_date: woo_order.date_created,
-  //             order_status: woo_order.status,
-  //             billing_address:
-  //               woo_order.billing.address_1 +
-  //               " " +
-  //               woo_order.billing.address_2 +
-  //               " " +
-  //               woo_order.billing.city +
-  //               " " +
-  //               woo_order.billing.state +
-  //               " " +
-  //               woo_order.billing.postcode +
-  //               " " +
-  //               woo_order.billing.country,
-  //             shipping_address:
-  //               woo_order.shipping.address_1 +
-  //               " " +
-  //               woo_order.shipping.address_2 +
-  //               " " +
-  //               woo_order.shipping.city +
-  //               " " +
-  //               woo_order.shipping.country,
-  //             currency: woo_order.currency,
-  //             total: woo_order.total,
-  //             payment_method: woo_order.payment_method_title,
-  //             woo_order_id: woo_order.id,
-  //             is_bundled:
-  //               woo_order.line_items[0] &&
-  //               woo_order.line_items[0].meta_data[0] &&
-  //               woo_order.line_items[0].meta_data[0].key === "_bundled_items"
-  //                 ? true
-  //                 : false,
-  //           },
-  //           { transaction: t }
-  //         );
-  //         for (k = 0; k < woo_order.line_items.length; k++) {
-  //           const orderItem = woo_order.line_items[k];
-  //           if (orderItem && orderItem.meta_data.length !== 0) {
-  //             await OrderItem.create(
-  //               {
-  //                 item_name: orderItem.name,
-  //                 item_sku: orderItem.sku,
-  //                 item_price: orderItem.price,
-  //                 item_quantity:
-  //                   woo_order.line_items[0] &&
-  //                   woo_order.line_items[0].meta_data[0] &&
-  //                   woo_order.line_items[0].meta_data[0].key ===
-  //                     "_bundled_items"
-  //                     ? orderItem.quantity
-  //                     : orderItem.meta_data[0].value,
-  //                 total: orderItem.total,
-  //                 orderId: createdOrder.id,
-  //               },
-  //               { transaction: t }
-  //             );
-  //           }
-  //         }
-  //       });
-  //     } catch (err) {
-  //       throw new Error(err);
-  //     }
-  //   }
-  //   page_num++;
-  //   if (data.length === 0) {
-  //     console.log(data.length);
-  //     return res.status(200).json(data);
-  //   }
-  // }
+  await Order.destroy({
+    truncate: true,
+  });
+  let page_num = 1;
+  while (true) {
+    const { data } = await WooCommerce.get(
+      `orders?page=${page_num}&per_page=100&after=${new Date(
+        threeMonthsAgo.format()
+      ).toISOString()}`
+    );
+    let createdOrder;
+    for (let j = 0; j < data.length; j++) {
+      const woo_order = data[j];
+      try {
+        const result = await sequelize.transaction(async (t) => {
+          createdOrder = await Order.create(
+            {
+              order_owner_name:
+                woo_order.billing.first_name +
+                " " +
+                woo_order.billing.last_name,
+              order_owner_email: woo_order.billing.email,
+              order_owner_phone_number: woo_order.billing.phone,
+              order_created_date: woo_order.date_created,
+              order_status: woo_order.status,
+              billing_address:
+                woo_order.billing.address_1 +
+                " " +
+                woo_order.billing.address_2 +
+                " " +
+                woo_order.billing.city +
+                " " +
+                woo_order.billing.state +
+                " " +
+                woo_order.billing.postcode +
+                " " +
+                woo_order.billing.country,
+              shipping_address:
+                woo_order.shipping.address_1 +
+                " " +
+                woo_order.shipping.address_2 +
+                " " +
+                woo_order.shipping.city +
+                " " +
+                woo_order.shipping.country,
+              currency: woo_order.currency,
+              total: woo_order.total,
+              payment_method: woo_order.payment_method_title,
+              woo_order_id: woo_order.id,
+            },
+            { transaction: t }
+          );
+          for (k = 0; k < woo_order.line_items.length; k++) {
+            const orderItem = woo_order.line_items[k];
+            if (orderItem && orderItem.meta_data.length !== 0) {
+              await OrderItem.create(
+                {
+                  item_name: orderItem.name,
+                  item_sku: orderItem.sku,
+                  item_price: orderItem.price,
+                  item_quantity:
+                    (woo_order.line_items[k] &&
+                      woo_order.line_items[k].meta_data[0] &&
+                      woo_order.line_items[k].meta_data[0].key ===
+                        "_bundled_items") ||
+                    (woo_order.line_items[k] &&
+                      woo_order.line_items[k].meta_data[0] &&
+                      woo_order.line_items[k].meta_data[0].key ===
+                        "_bundled_by")
+                      ? orderItem.quantity
+                      : orderItem.meta_data[0].value,
+                  total: orderItem.total,
+                  is_bundled_item:
+                    woo_order.line_items[k] &&
+                    woo_order.line_items[k].meta_data[0] &&
+                    woo_order.line_items[k].meta_data[0].key ===
+                      "_bundled_items"
+                      ? true
+                      : false,
+                  orderId: createdOrder.id,
+                },
+                { transaction: t }
+              );
+            }
+          }
+        });
+      } catch (err) {
+        throw new Error(err);
+      }
+    }
+    page_num++;
+    if (data.length === 0) {
+      console.log(data.length);
+      return res.status(200).json(data);
+    }
+  }
   // return res.status(200).json(data);
 });
 
@@ -217,15 +217,16 @@ const deleteOrder = asyncHandler(async (req, res, next) => {
 });
 const processBill = asyncHandler(async (req, res, next) => {
   const order = req.body;
-  console.log(order);
+  // console.log(order.order_items.order_items);
   let message = "";
   let product;
   if (order.order_items.order_items.length <= 0) {
     return res.status(400).json("order can't be empty");
   }
-  if (order.order_items.is_bundled) {
-    for (let index = 1; index < order.order_items.order_items.length; index++) {
-      const item = order.order_items.order_items[index];
+  for (let index = 0; index < order.order_items.order_items.length; index++) {
+    const item = order.order_items.order_items[index];
+    console.log(item);
+    if (!item.is_bundled_item) {
       try {
         product = await Product.findOne({
           where: {
@@ -259,50 +260,6 @@ const processBill = asyncHandler(async (req, res, next) => {
         }
       }
 
-      const found = product.stands.some(
-        (stand) => stand.location.quantity >= item.item_quantity
-      );
-      if (!found) {
-        return res
-          .status(400)
-          .json("please check all order's product quantity");
-      }
-    }
-  } else {
-    for (let index = 0; index < order.order_items.order_items.length; index++) {
-      const item = order.order_items.order_items[index];
-      try {
-        product = await Product.findOne({
-          where: {
-            product_sku: item.item_sku,
-          },
-          include: Stand,
-        });
-      } catch (error) {
-        throw new Error(error);
-      }
-      if (!product || !product.stands || product.stands.length <= 0) {
-        return res
-          .status(400)
-          .json("some product of this order isn't exist at any location");
-      }
-      for (let index2 = 0; index2 < product.stands.length; index2++) {
-        const stand = product.stands[index2];
-        if (stand.location.quantity === 0) {
-          try {
-            await Location.destroy({
-              where: {
-                id: stand.location.id,
-              },
-            });
-            return res
-              .status(400)
-              .json("Please Check The quantity in The Stands");
-          } catch (error) {
-            throw new Error(error);
-          }
-        }
-      }
       const found = product.stands.some(
         (stand) => stand.location.quantity >= item.item_quantity
       );
@@ -314,91 +271,63 @@ const processBill = asyncHandler(async (req, res, next) => {
     }
   }
 
-  if (order.order_items.is_bundled) {
-    for (let index = 1; index < order.order_items.order_items.length; index++) {
-      const item = order.order_items.order_items[index];
+  // for (let index = 0; index < order.order_items.order_items.length; index++) {
+  //   const item = order.order_items.order_items[index];
+  //   try {
+  //     product = await Product.findOne({
+  //       where: {
+  //         product_sku: item.item_sku,
+  //       },
+  //       include: Stand,
+  //     });
+  //   } catch (error) {
+  //     throw new Error(error);
+  //   }
+  //   if (!product || !product.stands || product.stands.length <= 0) {
+  //     return res
+  //       .status(400)
+  //       .json("some product of this order isn't exist at any location");
+  //   }
+  //   for (let index2 = 0; index2 < product.stands.length; index2++) {
+  //     const stand = product.stands[index2];
+  //     if (stand.location.quantity === 0) {
+  //       try {
+  //         await Location.destroy({
+  //           where: {
+  //             id: stand.location.id,
+  //           },
+  //         });
+  //         return res
+  //           .status(400)
+  //           .json("Please Check The quantity in The Stands");
+  //       } catch (error) {
+  //         throw new Error(error);
+  //       }
+  //     }
+  //   }
+  //   const found = product.stands.some(
+  //     (stand) => stand.location.quantity >= item.item_quantity
+  //   );
+  //   if (!found) {
+  //     return res
+  //       .status(400)
+  //       .json("please check all order's product quantity");
+  //   }
+  // }
 
-      product = await Product.findOne({
-        where: {
-          product_sku: item.item_sku,
-        },
-        include: Stand,
-      });
-      if (!product.stands || product.stands.length <= 0) {
-        return res
-          .status(400)
-          .json("some product of this order isn't exist at any location");
-      }
+  for (let index = 0; index < order.order_items.order_items.length; index++) {
+    const item = order.order_items.order_items[index];
+    if (!item.is_bundled_item) {
       try {
-        for (let index2 = 0; index2 < product.stands.length; index2++) {
-          const stand = product.stands[index2];
-          if (stand.location.quantity >= item.item_quantity) {
-            try {
-              await Location.update(
-                { quantity: stand.location.quantity - item.item_quantity },
-                { where: { id: stand.location.id } }
-              );
-              const standDetail = await Stand.findByPk(stand.id);
-              message += `<div>
-              <ul>
-              <li>
-              ${
-                item.item_quantity > 1
-                  ? item.item_quantity +
-                    " peices of " +
-                    item.item_name +
-                    " are taken from zone " +
-                    stand.location.zone_Symbol +
-                    " in stand #" +
-                    standDetail.stand_number
-                  : item.item_quantity +
-                    " peice of " +
-                    item.item_name +
-                    " is taken from zone " +
-                    stand.location.zone_Symbol +
-                    " in stand #" +
-                    standDetail.stand_number
-              }
-              </li>
-              </ul>
-                  </div>`;
-            } catch (error) {
-              throw new Error(error);
-            }
-          } else if (stand.location.quantity === 0) {
-            try {
-              await Location.destroy({
-                where: {
-                  id: stand.location.id,
-                },
-              });
-              return res
-                .status(400)
-                .json("Please Check The quantity in The Stands");
-            } catch (error) {
-              throw new Error(error);
-            }
-          } else {
-            return res
-              .status(400)
-              .json(
-                "single stand must have the whole quantity for each order item to be pulled"
-              );
-          }
-        }
+        product = await Product.findOne({
+          where: {
+            product_sku: item.item_sku,
+          },
+          include: Stand,
+        });
       } catch (error) {
         throw new Error(error);
       }
-    }
-  } else {
-    for (let index = 0; index < order.order_items.order_items.length; index++) {
-      const item = order.order_items.order_items[index];
-      product = await Product.findOne({
-        where: {
-          product_sku: item.item_sku,
-        },
-        include: Stand,
-      });
       if (!product.stands || product.stands.length <= 0) {
         return res
           .status(400)
@@ -436,7 +365,7 @@ const processBill = asyncHandler(async (req, res, next) => {
                 }
                 </li>
                 </ul>
-                  </div>`;
+                    </div>`;
             } catch (error) {
               throw new Error(error);
             }
@@ -466,6 +395,82 @@ const processBill = asyncHandler(async (req, res, next) => {
       }
     }
   }
+
+  // for (let index = 0; index < order.order_items.order_items.length; index++) {
+  //   const item = order.order_items.order_items[index];
+  //   product = await Product.findOne({
+  //     where: {
+  //       product_sku: item.item_sku,
+  //     },
+  //     include: Stand,
+  //   });
+  //   if (!product.stands || product.stands.length <= 0) {
+  //     return res
+  //       .status(400)
+  //       .json("some product of this order isn't exist at any location");
+  //   }
+  //   try {
+  //     for (let index2 = 0; index2 < product.stands.length; index2++) {
+  //       const stand = product.stands[index2];
+  //       if (stand.location.quantity >= item.item_quantity) {
+  //         try {
+  //           await Location.update(
+  //             { quantity: stand.location.quantity - item.item_quantity },
+  //             { where: { id: stand.location.id } }
+  //           );
+  //           const standDetail = await Stand.findByPk(stand.id);
+  //           message += `<div>
+  //               <ul>
+  //               <li>
+  //               ${
+  //                 item.item_quantity > 1
+  //                   ? item.item_quantity +
+  //                     " peices of " +
+  //                     item.item_name +
+  //                     " are taken from zone " +
+  //                     stand.location.zone_Symbol +
+  //                     " in stand #" +
+  //                     standDetail.stand_number
+  //                   : item.item_quantity +
+  //                     " peice of " +
+  //                     item.item_name +
+  //                     " is taken from zone " +
+  //                     stand.location.zone_Symbol +
+  //                     " in stand #" +
+  //                     standDetail.stand_number
+  //               }
+  //               </li>
+  //               </ul>
+  //                 </div>`;
+  //         } catch (error) {
+  //           throw new Error(error);
+  //         }
+  //       } else if (stand.location.quantity === 0) {
+  //         try {
+  //           await Location.destroy({
+  //             where: {
+  //               id: stand.location.id,
+  //             },
+  //           });
+  //           return res
+  //             .status(400)
+  //             .json("Please Check The quantity in The Stands");
+  //         } catch (error) {
+  //           throw new Error(error);
+  //         }
+  //       } else {
+  //         return res
+  //           .status(400)
+  //           .json(
+  //             "single stand must have the whole quantity for each order item to be pulled"
+  //           );
+  //       }
+  //     }
+  //   } catch (error) {
+  //     throw new Error(error);
+  //   }
+  // }
+
   try {
     await Bill.create({
       order_owner: order.order_items.order_owner_name,

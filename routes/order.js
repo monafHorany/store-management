@@ -10,5 +10,5 @@ router.get(
 );
 router.get("/order/:orderId", orderController.fetchOrderById);
 router.get("/fetchAllNewOrder", orderController.fetchAllNewOrder);
-router.post("/createBill", protect, admin, adminANDeditor, orderController.processBill);
+router.post("/createBill", protect, adminANDeditor, orderController.processBill);
 module.exports = router;

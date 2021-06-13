@@ -13,7 +13,6 @@ router.post(
   "/update/:id",
   protect,
   admin,
-  adminANDeditor,
   productController.updateProduct
 );
 router.get("/", productController.fetchAllProducts);
@@ -22,7 +21,6 @@ router.get("/importCsv", productController.importCsv);
 router.post(
   "/create",
   protect,
-  admin,
   adminANDeditor,
   fileUpload.single("image_url"),
   productController.createNewProduct

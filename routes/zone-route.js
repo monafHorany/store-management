@@ -12,7 +12,6 @@ router.get("/", zoneController.fetchAllZones);
 router.post(
   "/create",
   protect,
-  admin,
   adminANDeditor,
   zoneController.createNewZone
 );
