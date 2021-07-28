@@ -352,16 +352,16 @@ const processBill = asyncHandler(async (req, res, next) => {
                       " peices of " +
                       item.item_name +
                       " are taken from zone " +
-                      stand.location.zone_Symbol +
+                      stand.location.zone_label +
                       " in stand #" +
-                      standDetail.stand_number
+                      standDetail.stand_label
                     : item.item_quantity +
                       " peice of " +
                       item.item_name +
                       " is taken from zone " +
-                      stand.location.zone_Symbol +
+                      stand.location.zone_label +
                       " in stand #" +
-                      standDetail.stand_number
+                      standDetail.stand_label
                 }
                 </li>
                 </ul>

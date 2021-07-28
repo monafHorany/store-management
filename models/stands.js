@@ -8,8 +8,8 @@ const Stand = sequelize.define("stand", {
     primaryKey: true,
     autoIncrement: true,
   },
-  stand_number: {
-    type: DataTypes.INTEGER,
+  stand_label: {
+    type: DataTypes.STRING,
     allowNull: false,
   },
   stand_capacity: {

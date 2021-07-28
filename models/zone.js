@@ -8,7 +8,7 @@ const Zone = sequelize.define("zone", {
     allowNull: false,
     autoIncrement: true,
   },
-  zone_symbol: {
+  zone_label: {
     type: DataTypes.STRING,
     allowNull: false,
   },

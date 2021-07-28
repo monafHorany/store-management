@@ -36,27 +36,31 @@ const fetchSingleZone = asyncHandler(async (req, res, next) => {
 });
 
 const createNewZone = asyncHandler(async (req, res, next) => {
-  const { zone_symbol, zone_capacity } = req.body;
+  const { zone_label, zone_capacity } = req.body;
   let existingZone;
   try {
     existingZone = await Zone.findOne({
-      where: { zone_symbol: zone_symbol },
+      where: { zone_label: zone_label },
     });
   } catch (err) {
-    res.status(500).json("creating Zone failed, please try again later.");
+    return res
+      .status(500)
+      .json("creating Zone failed, please try again later.");
   }
 
   if (existingZone) {
-    res.status(422).json("Zone exists already");
+    return res.status(422).json("Zone exists already");
   }
   let createdZone;
   try {
     createdZone = await Zone.create({
-      zone_symbol,
+      zone_label,
       zone_capacity,
     });
   } catch (err) {
-    res.status(500).json("creating Zone failed, please try again later.");
+    return res
+      .status(500)
+      .json("creating Zone failed, please try again later.");
   }
   return res.status(201).json(createdZone);
 });
@@ -67,21 +71,21 @@ const updateZone = asyncHandler(async (req, res, next) => {
   try {
     existedZone = await Zone.findByPk(ZoneId);
     if (!existedZone) {
-      res.status(404).json("no Zone with the given id");
+      return res.status(404).json("no Zone with the given id");
     }
   } catch (error) {
-    res.status(500).json(error);
+    return res.status(500).json(error);
   }
-  const { zone_symbol, zone_capacity } = req.body;
+  const { zone_label, zone_capacity } = req.body;
 
   let updatedZone;
   try {
     updatedZone = await existedZone.update({
-      zone_symbol: zone_symbol || existedZone.zone_symbol,
+      zone_label: zone_label || existedZone.zone_label,
       zone_capacity: zone_capacity || existedZone.zone_capacity,
     });
   } catch (err) {
-    res.status(500).json(err);
+    return res.status(500).json(err);
   }
   return res.status(202).json(updatedZone);
 });
@@ -95,7 +99,7 @@ const deleteZone = asyncHandler(async (req, res, next) => {
       },
     });
   } catch (error) {
-    res.status(500).json(error);
+    return res.status(500).json(error);
   }
 
   return res.status(201).json({ message: "Zone deleted successfully" });

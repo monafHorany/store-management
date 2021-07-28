@@ -66,7 +66,9 @@ const createNewProduct = asyncHandler(async (req, res, next) => {
   }
 
   if (existingProducts) {
-    return res.status(422).json({ message: "Product exists already." });
+    return fs.unlink(file.path, () => {
+      return res.status(500).json({ message: "Product exists already." });
+    });
   }
   let createdProduct;
   try {
@@ -229,7 +231,7 @@ const productReport = asyncHandler(async (req, res, next) => {
 const csv = require("csvtojson");
 const importCsv = asyncHandler(async (req, res, next) => {
   const jsonArray = await csv().fromFile(
-    "wc-product-export-9-6-2021-1623239072126.csv"
+    "wc-product-export-28-7-2021-1627464167474.csv"
   );
   for (let i = 0; i < jsonArray.length; i++) {
     // console.log(typeof jsonArray[i]["Published"]);

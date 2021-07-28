@@ -9,7 +9,7 @@ const {
 
 router.get("/", userController.fetchAllUsers);
 router.post("/login", userController.login);
-router.post("/create", admin, userController.addNewUser);
+router.post("/create", userController.addNewUser);
 // router.post("/create", protect, admin, userController.addNewUser);
 router.put("/:id", protect, admin, userController.updateUser);
 router.delete("/:id", protect, admin, userController.deleteUser);

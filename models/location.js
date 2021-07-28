@@ -11,7 +11,7 @@ const Location = sequelize.define("location", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  zone_Symbol: {
+  zone_label: {
     type: DataTypes.STRING,
     allowNull: false,
   },

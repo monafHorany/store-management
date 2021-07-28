@@ -24,12 +24,12 @@ const insertProductInLocation = asyncHandler(async (req, res) => {
   try {
     existingProduct = await Product.findByPk(productId);
   } catch (err) {
-    res.status(500).json("can't find Product with the given Id");
+    return res.status(500).json("can't find Product with the given Id");
   }
 
   if (existingStand && existingProduct) {
     await existingStand.addProduct(existingProduct, {
-      through: { quantity: quantity, zone_Symbol: existingZone.zone_symbol },
+      through: { quantity: quantity, zone_label: existingZone.zone_label },
     });
 
     const result = await Stand.findOne({
@@ -37,7 +37,7 @@ const insertProductInLocation = asyncHandler(async (req, res) => {
       include: Product,
     });
     return res.status(200).json({
-      messsage: `Added To Zone ${existingZone.zone_symbol} in Stand ${result.stand_number}`,
+      messsage: `Added To Zone ${existingZone.zone_label} in Stand ${result.stand_label}`,
     });
   }
 });

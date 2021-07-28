@@ -40,12 +40,12 @@ const fetchAllStands = asyncHandler(async (req, res, next) => {
 });
 
 const createNewStand = asyncHandler(async (req, res, next) => {
-  const { stand_number, stand_capacity } = req.body;
+  const { stand_label, stand_capacity } = req.body;
   let existingstand;
   try {
     existingstand = await Stand.findOne({
       where: {
-        [Op.and]: [{ stand_number: stand_number }, { zoneId: req.params.id }],
+        [Op.and]: [{ stand_label: stand_label }, { zoneId: req.params.id }],
       },
     });
   } catch (err) {
@@ -58,7 +58,7 @@ const createNewStand = asyncHandler(async (req, res, next) => {
   let createdStand;
   try {
     createdStand = await Stand.create({
-      stand_number,
+      stand_label,
       stand_capacity,
       zoneId: req.params.id,
     });
@@ -82,12 +82,12 @@ const updateStand = asyncHandler(async (req, res, next) => {
     res.status(500);
     throw new Error(error);
   }
-  const { stand_number, stand_capacity } = req.body;
+  const { stand_label, stand_capacity } = req.body;
 
   let updatedStand;
   try {
     updatedStand = await existedStand.update({
-      stand_number: stand_number || existedStand.stand_number,
+      stand_label: stand_label || existedStand.stand_label,
       stand_capacity: stand_capacity || existedStand.stand_capacity,
     });
   } catch (err) {
